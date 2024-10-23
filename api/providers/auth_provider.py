@@ -109,4 +109,4 @@ def has_access(user, path, method):
     if access["full"]:
         return True
     else:
-        return access[path][method]
+        return access[path[0]][method]

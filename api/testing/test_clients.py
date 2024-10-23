@@ -147,7 +147,3 @@ class TestClients:
 
 if __name__ == '__main__':
     pytest.main()
-
-Druk jezelf uit met emoji's
-💖 👍 😂 🎉
-Reageer snel en voeg humor en persoonlijkheid toe aan je e-m
