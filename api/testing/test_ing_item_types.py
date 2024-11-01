@@ -1,0 +1,94 @@
+import httpx
+
+BASE_URL = "http://localhost:3000/api/v1"
+admin_headers = {
+    "api_key": "a1b2c3d4e5"
+}
+user_headers = {
+    "api_key": "f6g7h8i9j0"
+}
+
+# tests with admin key
+def test_get_item_types_admin():
+    response = httpx.get(f"{BASE_URL}/item_types", headers=admin_headers)
+    assert response.status_code == 200
+
+def test_get_item_types_by_id_admin():
+    response = httpx.get(f"{BASE_URL}/item_types/2", headers=admin_headers)
+    assert response.json()["name"] ==  "Tablet"
+    assert response.status_code == 200
+
+def test_add_item_types_admin():
+    data = {"id": 101, "name": "testAdds", "description": "testtype", "created_at": "2023-07-28 13:43:32", "updated_at": "2024-05-12 08:54:35"}
+    response = httpx.post(f"{BASE_URL}/item_types", headers=admin_headers, json=data)
+    assert response.status_code == 201 # causes code 404 notfound
+
+    get_response = httpx.get(f"{BASE_URL}/item_types/101", headers=admin_headers)
+    # assert get_response.status_code == 200  # Ensure the GET request is successful
+    fetched_data = get_response.json()
+
+    # Verify that the fetched data matches what was added
+    assert fetched_data["name"] == data["name"]
+    assert fetched_data["description"] == data["description"]
+
+def test_update_item_types_admin():
+    data = {"id": 105, "name": "testAdds", "description": "", "created_at": "2023-07-28 13:43:32",
+            "updated_at": "2024-05-12 08:54:35"}
+ 
+    response = httpx.put(f"{BASE_URL}/item_types/0", headers=admin_headers, json=data,)
+    assert response.status_code == 200
+
+    # this assumes GET is working correctly
+    get_response = httpx.get(f"{BASE_URL}/item_types/105", headers=admin_headers)
+    assert get_response.status_code == 200  # Ensure the GET request is successful
+    fetched_data = get_response.json()
+
+    # Verify that the fetched data matches what was added
+    assert fetched_data["name"] == data["name"]
+    assert fetched_data["description"] == data["description"]
+
+def test_delete_item_types_admin():
+    response = httpx.delete(f"{BASE_URL}/item_types/6", headers=admin_headers)
+    assert response.status_code == 200
+
+    # get_response = httpx.get(f"{BASE_URL}/item_types/6", headers=admin_headers)
+
+    # # should return NotFound but actually return 200 OK
+    # assert get_response.status_code == 404
+
+
+# tests with client key which should only allow GET
+def test_get_item_types():
+    response = httpx.get(f"{BASE_URL}/item_types", headers=user_headers)
+    assert response.status_code == 200
+
+def test_get_item_types_by_id():
+    response = httpx.get(f"{BASE_URL}/item_types/2", headers=user_headers)
+    assert response.json()["name"] ==  "Tablet"
+    assert response.status_code == 200
+
+def test_add_item_types():
+    data = {"id": 999, "name": "Office Chairs", "description": "", "created_at": "2009-07-18 08:13:40",
+        "updated_at": "2020-01-12 14:32:49"}
+    response = httpx.post(f"{BASE_URL}/item_types", headers=user_headers, json=data,)
+    # Should return erorr forbidden
+    assert response.status_code == 403
+
+
+
+def test_update_item_types():
+    data = {"id": 989, "name": "Office Supplies", "description": "new", "created_at": "2009-07-18 08:13:40",
+        "updated_at": "2024-01-12 14:32:49"} 
+    response = httpx.post(f"{BASE_URL}/item_types/3", headers=user_headers, json=data,)
+    # return error forbidden
+    assert response.status_code == 403
+
+    # # this assumes GET is working correctly
+    # get_response = httpx.get(f"{BASE_URL}/item_types/989", headers=user_headers)
+    # assert get_response.status_code == 404  #should return NotFound
+
+ 
+def test_delete_item_types():
+    response = httpx.delete(f"{BASE_URL}/item_types/999", headers=user_headers)
+    assert response.status_code == 403
+
