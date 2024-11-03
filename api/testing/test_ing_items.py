@@ -17,7 +17,7 @@ def test_get_items():
     response_user = httpx.get(f"{BASE_URL}/items", headers=user_headers)
     assert response_user.status_code == 200
 
-def test_get_item_by_id_admin():
+def test_get_item_by_id():
     response = httpx.get(f"{BASE_URL}/items/P000001", headers=admin_headers)
     assert response.json()["uid"] == "P000001"
     assert response.status_code == 200
