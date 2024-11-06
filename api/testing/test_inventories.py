@@ -4,9 +4,9 @@ from models.inventories import Inventories
 
 class TestInventories:
 
-    def setup(self):
+    def setup_method(self):
         self.inventories = Inventories("", True)
-        self.inventories.data = [
+        self.inventories.inventory_database = [
             {
                 "id": 13,
                 "item_id": "P000013",
@@ -67,7 +67,7 @@ class TestInventories:
         # The system shall provide the user with information of an inventory object given a valid ID from the user. 
         # Test bestaande ID
         result = self.inventories.get_inventory(13)
-        assert result == self.inventories.data[0]
+        assert result == self.inventories.inventory_database[0]
         # Test Niet bestaande ID
         result = self.inventories.get_inventory(18)
         assert result == None
@@ -81,7 +81,7 @@ class TestInventories:
     def test_get_inventories_for_item(self):
         # The system must provide the user with all inventory objects given a valid item ID from the user. 
         result = self.inventories.get_inventories_for_item("P000013")
-        assert result == [self.inventories.data[0], self.inventories.data[1]]
+        assert result == [self.inventories.inventory_database[0], self.inventories.inventory_database[1]]
         # Thunder/api gebruikt nooit deze methode maar automatisch test_get_inventory(id)
 
         # test niet bestaande item ID
@@ -137,17 +137,17 @@ class TestInventories:
 
         to_be_added_empty = {}
         self.inventories.add_inventory(to_be_added)
-        assert self.inventories.data.__len__() == 3
+        assert self.inventories.inventory_database.__len__() == 3
         self.inventories.add_inventory(to_be_added_empty)
-        assert self.inventories.data.__len__() == 3
+        assert self.inventories.inventory_database.__len__() == 3
     
     def test_remove_inventory(self):
         self.inventories.remove_inventory(13)
-        assert self.inventories.data.__len__() == 1
+        assert self.inventories.inventory_database.__len__() == 1
         self.inventories.remove_inventory(2)
-        assert self.inventories.data.__len__() == 1
+        assert self.inventories.inventory_database.__len__() == 1
         self.inventories.remove_inventory(-14)
-        assert self.inventories.data.__len__() == 1
+        assert self.inventories.inventory_database.__len__() == 1
 
 
     # The system shall provide the user the total items of all inventory objects that match the given item ID. 

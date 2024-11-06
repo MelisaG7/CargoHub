@@ -1,12 +1,12 @@
 import pytest
-from models.clients import Clients
+from models.clients import *
 
 
 class TestClients:
     
-    def setup(self):
+    def setup_method(self):
         self.clients = Clients("", True)
-        self.clients.data = [
+        self.clients.client_database = [
             {
                 "id": 20,
                 "name": "Martin-Nguyen",
@@ -30,9 +30,8 @@ class TestClients:
         Id_B = 10000
         # c - een negatieve Id
         Id_C = -20
-
         result_A = self.clients.get_client(Id_A)
-        assert result_A == self.clients.data[0]
+        assert result_A == self.clients.client_database[0]
         
         result_B = self.clients.get_client(Id_B)
         assert result_B is None
@@ -72,18 +71,18 @@ class TestClients:
         empty_client_body = {}
         # Nu moet ik dus kijken of de client_body daadwerkelijk nu in data zit
         self.clients.add_client(client_body)
-        assert self.clients.data[-1] == client_body
+        assert self.clients.client_database[-1] == client_body
 
         self.clients.add_client(empty_client_body)
-        assert self.clients.data[-1] != empty_client_body 
+        assert self.clients.client_database[-1] != empty_client_body 
         # FOUT DETECTED!! Een lege body sturen werkt WEL!
 
         self.clients.add_client(wrong_client_body)
-        assert self.clients.data[-1] != wrong_client_body
-        # FOUT DETECTED!!! Client objects met missende informatie komen WEL bij alle data
+        assert self.clients.client_database[-1] != wrong_client_body
+        # FOUT DETECTED!!! Client objects met missende informatie komen WEL bij alle client_database
     
     def test_update_client(self):
-        # The user must pass a client object with a matching ID to that of a client object in the database,
+        # The user must pass a client object with a matching ID to that of a client object in the client_databasebase,
         # in order for the system to update that client object.
         new_client_body = {
             "id": 30,
@@ -100,7 +99,7 @@ class TestClients:
 
         # Check de methode met de juiste ID en een correct aangepaste body
         self.clients.update_client(20, new_client_body)
-        assert self.clients.data[0]["id"] == new_client_body["id"]
+        assert self.clients.client_database[0]["id"] == new_client_body["id"]
 
         # Nu ga ik checken of het werkt met een verkeerd Id?
         result = self.clients.update_client(32, new_client_body)
@@ -108,10 +107,10 @@ class TestClients:
 
     def test_delete_client(self):
         result = []
-        # Check of de client in de datalijst verwijderd is.
+        # Check of de client in de client_databaselijst verwijderd is.
         # Omdat er maar een persoon in zit, kan je checken of de lijst leeg is
         self.clients.remove_client(20)
-        assert self.clients.data == result
+        assert self.clients.client_database == result
         # Nu gaan we kijken wat er gebeurd als je twee personen met dezelfde Id verwijderd?
         Added_body = {
             "id": 22,
@@ -140,7 +139,7 @@ class TestClients:
         self.clients.add_client(Added_body)
         self.clients.add_client(Added_body2)
         self.clients.remove_client(22)
-        assert self.clients.data.__len__() == 1
+        assert self.clients.client_database.__len__() == 1
         # FOUT DETECTED!!!! Ten eerste kan je verschillende clients met dezelfde Id toevoegen,
         # Ten tweede als een deletion wort gerequest, wordt alleen de eerste client met die Id verwijderd.
         # The system shall delete a client object, when given an existing
