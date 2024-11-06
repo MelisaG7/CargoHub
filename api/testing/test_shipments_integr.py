@@ -1,77 +1,79 @@
 import pytest
-import json
-from models.shipments import Shipments  # Zorg ervoor dat je het juiste pad gebruikt voor je import
+import httpx
 
-class TestShipments:
+BASE_URL = "http://localhost:3000/api/v1/shipments"  # Pas dit aan naar jouw server-URL
+
+class TestEndpointsShipments:
 
     @pytest.fixture(autouse=True)
     def setup(self):
-        # Stel de root_path en testdata in
-        self.root_path = "./"  # Pas dit aan naar het pad waar je testdata wilt opslaan
-        self.shipments_data = [
-            {
-                "id": 1,
-                "items": [{"item_id": "A001", "amount": 10}],
-                "created_at": "2024-01-01T00:00:00Z",
-                "updated_at": "2024-01-01T00:00:00Z"
-            },
-            {
-                "id": 2,
-                "items": [{"item_id": "B002", "amount": 5}],
-                "created_at": "2024-01-02T00:00:00Z",
-                "updated_at": "2024-01-02T00:00:00Z"
-            }
+        self.headerlist = [
+            {"api_key": "a1b2c3d4e5"},
+            {"api_key": "f6g7h8i9j0"}
         ]
-
-        # Maak een tijdelijke JSON-bestand voor de tests
-        with open(self.root_path + "shipments.json", "w") as f:
-            json.dump(self.shipments_data, f)
-
-        # Initialiseer de Shipments klasse
-        self.shipments = Shipments(self.root_path, is_debug=True)
+        self.valid_shipment_id = 101  # shipment ID
+        self.invalid_shipment_ids = [-1, -20, 1.25, "hundred"]
+        self.new_shipment = {
+            "id": 2021,
+            "client_id": 300,
+            "shipment_date": "2024-01-01 10:00:00",
+            "status": "Pending",
+            "items": [
+                {"item_id": 1, "amount": 50},
+                {"item_id": 2, "amount": 20}
+            ]
+        }
 
     def test_get_shipments(self):
-        all_shipments = self.shipments.get_shipments()
-        assert len(all_shipments) == 2  # Verwacht dat er 2 zendingen zijn
+        response = httpx.get(BASE_URL, headers=self.headerlist[0])
+        assert response.status_code == 200
+
+        response = httpx.get(BASE_URL, headers=self.headerlist[1])
+        assert response.status_code == 403  # Verkeerde API-sleutel
 
     def test_get_shipment(self):
-        shipment = self.shipments.get_shipment(1)
-        assert shipment is not None
-        assert shipment["id"] == 1
+        response = httpx.get(f"{BASE_URL}/{self.valid_shipment_id}", headers=self.headerlist[0])
+        assert response.status_code == 200
+        assert response.json()["id"] == self.valid_shipment_id
 
-        shipment = self.shipments.get_shipment(3)  # Niet bestaande zending
-        assert shipment is None
+        for invalid_id in self.invalid_shipment_ids:
+            response = httpx.get(f"{BASE_URL}/{invalid_id}", headers=self.headerlist[0])
+            assert response.status_code == 404  # Niet-gevonden statuscode
 
-    def test_add_shipment(self):
-        new_shipment = {
-            "id": 3,
-            "items": [{"item_id": "C003", "amount": 20}]
-        }
-        self.shipments.add_shipment(new_shipment)
-        all_shipments = self.shipments.get_shipments()
-        assert len(all_shipments) == 3  # We verwachten nu 3 zendingen
+        response = httpx.get(f"{BASE_URL}/{self.valid_shipment_id}", headers=self.headerlist[1])
+        assert response.status_code == 403
 
-    def test_update_shipment(self):
-        updated_shipment = {
-            "id": 1,
-            "items": [{"item_id": "A001", "amount": 15}],
-            "created_at": "2024-01-01T00:00:00Z",
-            "updated_at": "2024-01-01T00:00:00Z"
-        }
-        self.shipments.update_shipment(1, updated_shipment)
-        shipment = self.shipments.get_shipment(1)
-        assert shipment["items"][0]["amount"] == 15
+    def test_post_shipment(self):
+        response = httpx.post(BASE_URL, json=self.new_shipment, headers=self.headerlist[0])
+        assert response.status_code == 201
+
+        response = httpx.get(f"{BASE_URL}/{self.new_shipment['id']}", headers=self.headerlist[0])
+        assert response.status_code == 200
+        assert response.json()["id"] == self.new_shipment['id']
+
+        response = httpx.post(BASE_URL, json=self.new_shipment, headers=self.headerlist[1])
+        assert response.status_code == 403
+
+    def test_put_shipment(self):
+        updated_shipment = self.new_shipment.copy()
+        updated_shipment["status"] = "Shipped"
+
+        response = httpx.put(f"{BASE_URL}/{self.new_shipment['id']}", json=updated_shipment, headers=self.headerlist[0])
+        assert response.status_code == 200
+
+        response = httpx.get(f"{BASE_URL}/{self.new_shipment['id']}", headers=self.headerlist[0])
+        assert response.status_code == 200
+        assert response.json()["status"] == "Shipped"
+
+        response = httpx.put(f"{BASE_URL}/{self.new_shipment['id']}", json=updated_shipment, headers=self.headerlist[1])
+        assert response.status_code == 403
 
     def test_remove_shipment(self):
-        self.shipments.remove_shipment(2)
-        all_shipments = self.shipments.get_shipments()
-        assert len(all_shipments) == 1  # Na verwijderen van zending 2 verwachten we 1 zending
+        response = httpx.delete(f"{BASE_URL}/{self.new_shipment['id']}", headers=self.headerlist[0])
+        assert response.status_code == 200
 
-    def teardown_method(self):
-        # Ruim op: verwijder het tijdelijke bestand
-        import os
-        if os.path.exists(self.root_path + "shipments.json"):
-            os.remove(self.root_path + "shipments.json")
+        response = httpx.get(f"{BASE_URL}/{self.new_shipment['id']}", headers=self.headerlist[0])
+        assert response.status_code == 404
 
-if __name__ == '__main__':
-    pytest.main()
+        response = httpx.delete(f"{BASE_URL}/{self.new_shipment['id']}", headers=self.headerlist[1])
+        assert response.status_code == 403
