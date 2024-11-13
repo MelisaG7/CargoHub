@@ -32,9 +32,9 @@ class Locations(Base):
         Returns:
             dict or None: De locatiegegevens als een dictionary als deze bestaat, anders None.
         """
-        for x in self.data:
-            if x["id"] == location_id:
-                return x
+        for location in self.data:
+            if location["id"] == location_id:
+                return location
         return None
 
     def get_locations_in_warehouse(self, warehouse_id):
@@ -46,11 +46,11 @@ class Locations(Base):
         Returns:
             list: Een lijst met locaties binnen het opgegeven magazijn.
         """
-        result = []
-        for x in self.data:
-            if x["warehouse_id"] == warehouse_id:
-                result.append(x)
-        return result
+        locations_in_warehouse = []
+        for location in self.data:
+            if location["warehouse_id"] == warehouse_id:
+                locations_in_warehouse.append(location)
+        return locations_in_warehouse
 
     def add_location(self, location):
         """Voegt een nieuwe locatie toe aan de data met tijdstempels voor aanmaak en update.
@@ -70,9 +70,9 @@ class Locations(Base):
             location (dict): De bijgewerkte locatiegegevens.
         """
         location["updated_at"] = self.get_timestamp()
-        for i in range(len(self.data)):
-            if self.data[i]["id"] == location_id:
-                self.data[i] = location
+        for index in range(len(self.data)):
+            if self.data[index]["id"] == location_id:
+                self.data[index] = location
                 break
 
     def remove_location(self, location_id):
@@ -81,9 +81,9 @@ class Locations(Base):
         Args:
             location_id (int): Het ID van de locatie om te verwijderen.
         """
-        for x in self.data:
-            if x["id"] == location_id:
-                self.data.remove(x)
+        for location in self.data:
+            if location["id"] == location_id:
+                self.data.remove(location)
 
     def load(self, is_debug):
         """Laadt de locatiegegevens uit een JSON-bestand of uit een debuglijst.
