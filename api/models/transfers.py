@@ -28,9 +28,9 @@ class Transfers(Base):
         Returns:
             dict: The transfer data if found, otherwise None.
         """
-        for x in self.data:
-            if x["id"] == transfer_id:
-                return x
+        for transfer in self.data:
+            if transfer["id"] == transfer_id:
+                return transfer
         return None
 
     def get_items_in_transfer(self, transfer_id):
@@ -42,9 +42,9 @@ class Transfers(Base):
         Returns:
             list: A list of items in the transfer, or None if the transfer is not found.
         """
-        for x in self.data:
-            if x["id"] == transfer_id:
-                return x["items"]
+        for transfer in self.data:
+            if transfer["id"] == transfer_id:
+                return transfer["items"]
         return None
 
     def add_transfer(self, transfer):
@@ -66,9 +66,9 @@ class Transfers(Base):
             transfer (dict): The updated transfer data.
         """
         transfer["updated_at"] = self.get_timestamp()
-        for i in range(len(self.data)):
-            if self.data[i]["id"] == transfer_id:
-                self.data[i] = transfer
+        for index in range(len(self.data)):
+            if self.data[index]["id"] == transfer_id:
+                self.data[index] = transfer
                 break
 
     def remove_transfer(self, transfer_id):
@@ -77,9 +77,9 @@ class Transfers(Base):
         Args:
             transfer_id (int): The ID of the transfer to remove.
         """
-        for x in self.data:
-            if x["id"] == transfer_id:
-                self.data.remove(x)
+        for transfer in self.data:
+            if transfer["id"] == transfer_id:
+                self.data.remove(transfer)
 
     def load(self, is_debug):
         """Loads transfer data from a JSON file or debug data if specified.
