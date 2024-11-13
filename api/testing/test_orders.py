@@ -1,5 +1,5 @@
 import pytest
-from api.models.orders import Orders
+from models.orders import Orders
 
 # Mock ORDERS data om mee te testen
 ORDERS = [

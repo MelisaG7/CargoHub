@@ -2,7 +2,7 @@ import pytest
 import sys
 import os
 
-from api.models.locations import Locations
+from models.locations import Locations
 
 # Mock LOCATIONS data om mee te testen
 LOCATIONS = [
