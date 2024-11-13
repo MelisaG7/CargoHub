@@ -95,16 +95,31 @@ USERS = [
 _users = None
 
 def init():
+    """Initialize user data."""
     global _users
     _users = USERS
 
 def get_user(api_key):
-    for x in _users:
-        if x["api_key"] == api_key:
-            return x
+    """
+    Retrieves the user that contains the given api key.
+
+    :param api_key: The API key to match.
+    :return: The user dictionary if found, else None.
+    """
+    for user in _users:
+        if user["api_key"] == api_key:
+            return user
     return None
 
 def has_access(user, path, method):
+    """
+    Check if the user has access to the specified method on a given endpoint.
+
+    :param user: The user dictionary.
+    :param path: A list where the first element is the endpoint name.
+    :param method: The HTTP method (e.g., 'get', 'post') to check.
+    :return: True if access is allowed, False otherwise.
+    """
     access = user["endpoint_access"]
     if access["full"]:
         return True
