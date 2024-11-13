@@ -43,7 +43,6 @@ class ItemLines(Base):
         item_line["created_at"] = self.get_timestamp()
         item_line["updated_at"] = self.get_timestamp()
         self.data.append(item_line)
-        self.save()
 
     def update_item_line(self, item_line_id, new_item_line):
         """
@@ -57,7 +56,6 @@ class ItemLines(Base):
         for i in range(len(self.data)):
             if self.data[i]["id"] == item_line_id:
                 self.data[i] = new_item_line
-                self.save()
                 return True
         return False
 
@@ -71,7 +69,6 @@ class ItemLines(Base):
         for item_line in self.data:
             if item_line["id"] == item_line_id:
                 self.data.remove(item_line)
-                self.save()
                 return True
         return False
 

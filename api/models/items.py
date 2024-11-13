@@ -96,7 +96,6 @@ class Items(Base):
         item["created_at"] = self.get_timestamp()
         item["updated_at"] = self.get_timestamp()
         self.data.append(item)
-        self.save()
 
     def update_item(self, item_id, new_item):
         """
@@ -110,7 +109,6 @@ class Items(Base):
             if self.data[item]["uid"] == item_id:
                 new_item["updated_at"] = self.get_timestamp()
                 self.data[item] = new_item
-                self.save()
                 return True
         return False
 
@@ -124,7 +122,6 @@ class Items(Base):
         for item in self.data:
             if item["uid"] == item_id:
                 self.data.remove(item)
-                self.save()
                 return True
         return False
 

@@ -45,7 +45,6 @@ class ItemTypes(Base):
         item_type["created_at"] = self.get_timestamp()
         item_type["updated_at"] = self.get_timestamp()
         self.data.append(item_type)
-        self.save()
 
     def update_item_type(self, item_type_id, new_item_type):
         """
@@ -59,7 +58,6 @@ class ItemTypes(Base):
         for itemtype in range(len(self.data)):
             if self.data[itemtype]["id"] == item_type_id:
                 self.data[itemtype] = new_item_type
-                self.save()
                 return True
         return False
 
@@ -73,7 +71,6 @@ class ItemTypes(Base):
         for item_type in self.data:
             if item_type["id"] == item_type_id:
                 self.data.remove(item_type)
-                self.save()
                 return True
         return False
 
