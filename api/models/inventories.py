@@ -1,5 +1,5 @@
 import json
-
+from http import HTTPStatus
 from models.base import Base
 
 INVENTORIES = []
@@ -18,6 +18,10 @@ class Inventories(Base):
     def __init__(self, root_path, is_debug=False):
         self.inventory_database_path = root_path + "inventories.json"
         self.load(is_debug)
+    
+    def inventories():
+        from Fouthandling import inventories_fouthandling
+        return inventories_fouthandling
 
     def get_inventories(self):
         # This method returns all inventory objects in the database

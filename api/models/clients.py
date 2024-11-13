@@ -1,5 +1,5 @@
 import json
-
+# from Fouthandling.clients_fouthandling import ClientsFoutHandling
 from models.base import Base
 
 CLIENTS = []
@@ -17,12 +17,18 @@ class Clients(Base):
         self.client_database_path = root_path + "clients.json"
         self.load(is_debug)
 
+    def FoutHandling(self):
+        from Fouthandling.clients_fouthandling import ClientsFoutHandling
+        return ClientsFoutHandling
+
     def get_clients(self):
         # Fetches all client objects from the database
         return self.client_database
 
     def get_client(self, client_id):
         # Fetches client based on id
+        if not self.FoutHandling().check_get_client(client_id):
+            return f"invalid client id: {client_id}"
         for client in self.client_database:
             if client["id"] == client_id:
                 '''

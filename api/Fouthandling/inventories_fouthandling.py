@@ -1,16 +1,16 @@
-from models.inventories import Inventories
-
-
 class InventoriesFoutHandling:
 
     def __init__(self):
-        self.inventories = Inventories("", True)
         self.RequiredFields = [
             "id", "item_id", "description",
             "item_reference", "locations", "total_on_hand",
             "total_expected", "total_ordered", "total_allocated",
             "total_available"
         ]
+
+    def inventories():
+        from models.inventories import Inventories
+        return Inventories("", True)
 
     def check_valid_id(self, inventory_id):
         # checks on negatieve ids
@@ -35,7 +35,7 @@ class InventoriesFoutHandling:
         # Ik ga hier en in de methode eronder probs checken of
         # het in database staat.
         # Daarna call ik dit gewoon in de inventories.py
-        for inventory in self.inventories.inventory_database:
+        for inventory in self.inventories().inventory_database:
             if inventory["item_id"] == item_id:
                 return True
         return False
@@ -49,7 +49,7 @@ class InventoriesFoutHandling:
         # checks valid body
         if self.check_valid_body(inventory):
             # checks if id not in database
-            for inventaris in self.inventories.inventory_database:
+            for inventaris in self.inventories().inventory_database:
                 if inventaris["id"] == inventory["id"]:
                     return False
         return True

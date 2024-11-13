@@ -16,7 +16,7 @@ from models.shipments import Shipments
 DEBUG = False
 
 # Constant string.
-ROOT_PATH = "./data/"
+ROOT_PATH = "C:/Users/User/Documents/GitHub/CargoHub/data/"
 
 # Create variables. These are assigned to none.
 _warehouses = None
