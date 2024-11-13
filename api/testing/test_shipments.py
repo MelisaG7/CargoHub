@@ -1,5 +1,5 @@
 import pytest
-from api.models.shipments import Shipments
+from models.shipments import Shipments
 
 SHIPMENTS = [
     {"id": 1, "items": [{"item_id": 101, "amount": 5}], "shipment_status": "Pending"},
