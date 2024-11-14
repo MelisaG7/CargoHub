@@ -8,9 +8,9 @@ from models.item_groups import ItemGroups
 from models.item_types import ItemTypes
 from models.inventories import Inventories
 from models.suppliers import Suppliers
-from models.orders import Orders
+# from models.orders import Orders
 from models.clients import Clients
-from models.shipments import Shipments
+# from models.shipments import Shipments
 
 # constant boolean set to False
 DEBUG = False
@@ -58,14 +58,24 @@ def init():
     global _suppliers
     _suppliers = Suppliers(ROOT_PATH, DEBUG)
     global _orders
-    _orders = Orders(ROOT_PATH, DEBUG)
+    _orders = Orders()(ROOT_PATH, DEBUG)
     global _clients
-    _clients = Clients(ROOT_PATH, DEBUG)
+    _clients = Clients()(ROOT_PATH, DEBUG)
     global _shipments
-    _shipments = Shipments(ROOT_PATH, DEBUG)
+    _shipments = Shipments()(ROOT_PATH, DEBUG)
 
 # With pool they mean that this object contains functions,
 # that can retrieve, update, delete, add data to the Warehouse database.
+
+
+def Orders():
+    from models.orders import Orders
+    return Orders
+
+
+def Shipments():
+    from models.shipments import Shipments
+    return Shipments
 
 
 def fetch_warehouse_pool():

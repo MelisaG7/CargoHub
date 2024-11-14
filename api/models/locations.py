@@ -4,6 +4,7 @@ from models.base import Base
 
 LOCATIONS = []
 
+
 class Locations(Base):
     def __init__(self, root_path, is_debug=False):
         """Initialiseert de Locations-klasse met een pad naar het data-bestand.

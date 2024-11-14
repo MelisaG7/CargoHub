@@ -1,9 +1,9 @@
 import pytest
-from models.clients import *
+from models.clients import Clients
 
 
 class TestClients:
-    
+
     def setup_method(self):
         self.clients = Clients("", True)
         self.clients.client_database = [
@@ -22,7 +22,7 @@ class TestClients:
                 "updated_at": "2004-09-22 08:30:53"
             }
         ]
-    
+
     def test_get_client(self):
         # a - een bestaande Id
         Id_A = 20
@@ -32,10 +32,10 @@ class TestClients:
         Id_C = -20
         result_A = self.clients.get_client(Id_A)
         assert result_A == self.clients.client_database[0]
-        
+
         result_B = self.clients.get_client(Id_B)
         assert result_B is None
-        
+
         result_C = self.clients.get_client(Id_C)
         assert result_C is None
 
@@ -143,6 +143,7 @@ class TestClients:
         # FOUT DETECTED!!!! Ten eerste kan je verschillende clients met dezelfde Id toevoegen,
         # Ten tweede als een deletion wort gerequest, wordt alleen de eerste client met die Id verwijderd.
         # The system shall delete a client object, when given an existing
+
 
 if __name__ == '__main__':
     pytest.main()
