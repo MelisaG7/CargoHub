@@ -13,18 +13,18 @@ class TestInventories:
                 "description": "Synergistic secondary utilization",
                 "item_reference": "aaB64234x",
                 "locations": [
-                9763,
-                26934,
-                26986,
-                29976,
-                30032,
-                21508,
-                19470,
-                19841,
-                14018,
-                617,
-                11413,
-                11455
+                    9763,
+                    26934,
+                    26986,
+                    29976,
+                    30032,
+                    21508,
+                    19470,
+                    19841,
+                    14018,
+                    617,
+                    11413,
+                    11455
                 ],
                 "total_on_hand": 1,
                 "total_expected": 1,
@@ -40,18 +40,18 @@ class TestInventories:
                 "description": "I am just a girl",
                 "item_reference": "aaB64234x",
                 "locations": [
-                9763,
-                26934,
-                26986,
-                29976,
-                30032,
-                21508,
-                19470,
-                19841,
-                14018,
-                617,
-                11413,
-                11455
+                    9763,
+                    26934,
+                    26986,
+                    29976,
+                    30032,
+                    21508,
+                    19470,
+                    19841,
+                    14018,
+                    617,
+                    11413,
+                    11455
                 ],
                 "total_on_hand": 1,
                 "total_expected": 1,
@@ -70,13 +70,13 @@ class TestInventories:
         assert result == self.inventories.inventory_database[0]
         # Test Niet bestaande ID
         result = self.inventories.get_inventory(18)
-        assert result == None
+        assert result is None
         # Test string of 
         result = self.inventories.get_inventory("13")
-        assert result == None
+        assert result is None
 
         result = self.inventories.get_inventory("dertien")
-        assert result == None
+        assert result is None
 
     def test_get_inventories_for_item(self):
         # The system must provide the user with all inventory objects given a valid item ID from the user. 
@@ -87,7 +87,7 @@ class TestInventories:
         # test niet bestaande item ID
         result = self.inventories.get_inventories_for_item("P000018")
         assert result == []
-    
+
     def test_get_items_for_inventory(self):
         # result["total_expected"] += x["total_expected"]
         # result["total_ordered"] += x["total_ordered"]
@@ -105,7 +105,7 @@ class TestInventories:
         assert result["total_ordered"] == 2
         assert result["total_allocated"] == 2
         assert result["total_available"] == 2
-    
+
     def test_add_inventory(self):
         to_be_added = {
                 "id": 15,
@@ -113,18 +113,18 @@ class TestInventories:
                 "description": "fall shoes",
                 "item_reference": "aaB64234x",
                 "locations": [
-                9763,
-                26934,
-                26986,
-                29976,
-                30032,
-                21508,
-                19470,
-                19841,
-                14018,
-                617,
-                11413,
-                11455
+                    9763,
+                    26934,
+                    26986,
+                    29976,
+                    30032,
+                    21508,
+                    19470,
+                    19841,
+                    14018,
+                    617,
+                    11413,
+                    11455
                 ],
                 "total_on_hand": 1,
                 "total_expected": 1,
@@ -140,7 +140,7 @@ class TestInventories:
         assert self.inventories.inventory_database.__len__() == 3
         self.inventories.add_inventory(to_be_added_empty)
         assert self.inventories.inventory_database.__len__() == 3
-    
+
     def test_remove_inventory(self):
         self.inventories.remove_inventory(13)
         assert self.inventories.inventory_database.__len__() == 1

@@ -8,10 +8,12 @@ ORDERS = [
     {"id": 3, "shipment_id": 103, "ship_to": "Client C", "bill_to": "Client C", "items": []},
 ]
 
+
 def test_get_orders():
     orders = Orders(root_path="", is_debug=True)
     orders.data = ORDERS  # Mock data invoegen
     assert orders.get_orders() == ORDERS  # Controleer of we de juiste orders krijgen
+
 
 def test_get_order():
     orders = Orders(root_path="", is_debug=True)
@@ -19,11 +21,13 @@ def test_get_order():
     assert orders.get_order(1) == ORDERS[0]  # Order 1 ophalen
     assert orders.get_order(999) is None  # Niet-bestaande order moet None retourneren
 
+
 def test_get_orders_in_shipment():
     orders = Orders(root_path="", is_debug=True)
     orders.data = ORDERS
     result = orders.get_orders_in_shipment(101)
     assert result == [1]  # Order 1 is de enige in shipment_id 101
+
 
 def test_add_order():
     orders = Orders(root_path="", is_debug=True)
@@ -33,12 +37,14 @@ def test_add_order():
     assert len(orders.data) == 4  # Controleer of de nieuwe order is toegevoegd
     assert orders.data[-1]["id"] == 4  # De laatste order moet de nieuwe order zijn
 
+
 def test_update_order():
     orders = Orders(root_path="", is_debug=True)
     orders.data = ORDERS.copy()
     updated_order = {"id": 1, "shipment_id": 101, "ship_to": "Updated Client", "bill_to": "Client A", "items": []}
     orders.update_order(1, updated_order)
     assert orders.data[0]["ship_to"] == "Updated Client"  # Order moet zijn bijgewerkt
+
 
 def test_remove_order():
     orders = Orders(root_path="", is_debug=True)

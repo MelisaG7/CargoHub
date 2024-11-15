@@ -1,9 +1,10 @@
 import json
 
 from models.base import Base
-from providers import data_provider
+# from providers import data_provider
 
 ORDERS = []
+
 
 class Orders(Base):
     def __init__(self, root_path, is_debug=False):
@@ -15,6 +16,10 @@ class Orders(Base):
         """
         self.data_path = root_path + "orders.json"
         self.load(is_debug)
+
+    def DataProvider():
+        from providers import data_provider
+        return data_provider
 
     def get_orders(self):
         """Haalt alle bestellingen op uit de data.
@@ -123,7 +128,7 @@ class Orders(Base):
                     found = True
                     break
             if not found:
-                inventories = data_provider.fetch_inventory_pool().get_inventories_for_item(current_item["item_id"])
+                inventories = self.DataProvider().fetch_inventory_pool().get_inventories_for_item(current_item["item_id"])
                 min_ordered = 1_000_000_000_000_000_000
                 min_inventory = None
                 for inventory in inventories:
@@ -132,13 +137,13 @@ class Orders(Base):
                         min_inventory = inventory
                 min_inventory["total_allocated"] -= current_item["amount"]
                 min_inventory["total_expected"] = new_item["total_on_hand"] + new_item["total_ordered"]
-                data_provider.fetch_inventory_pool().update_inventory(min_inventory["id"], min_inventory)
+                self.DataProvider().fetch_inventory_pool().update_inventory(min_inventory["id"], min_inventory)
 
         # Voeg of update items die in de bestelling zijn
         for current_item in current_items:
             for new_item in items:
                 if current_item["item_id"] == new_item["item_id"]:
-                    inventories = data_provider.fetch_inventory_pool().get_inventories_for_item(current_item["item_id"])
+                    inventories = self.DataProvider().fetch_inventory_pool().get_inventories_for_item(current_item["item_id"])
                     min_ordered = 1_000_000_000_000_000_000
                     min_inventory
                     for inventory in inventories:
@@ -147,7 +152,7 @@ class Orders(Base):
                             min_inventory = inventory
                 min_inventory["total_allocated"] += new_item["amount"] - current_item["amount"]
                 min_inventory["total_expected"] = new_item["total_on_hand"] + new_item["total_ordered"]
-                data_provider.fetch_inventory_pool().update_inventory(min_inventory["id"], min_inventory)
+                self.DataProvider().fetch_inventory_pool().update_inventory(min_inventory["id"], min_inventory)
 
         order["items"] = items
         self.update_order(order_id, order)

@@ -1,20 +1,29 @@
 import json
 
 from models.base import Base
-from providers import data_provider
+# from providers import data_provider
 
 SHIPMENTS = []
+
+# CHANGES:
+# Functie DataProvider() returned data_provider
+# Deze wordt opgeroepen waar nodig is ipv data_provider
+
 
 class Shipments(Base):
     def __init__(self, root_path, is_debug=False):
         """Initializes the Shipments class with the path to the JSON file and loads the data.
-        
+
         Args:
             root_path (str): Base path to the data.
             is_debug (bool): Indicates if debug data should be loaded.
         """
         self.data_path = root_path + "shipments.json"
         self.load(is_debug)
+    
+    def DataProvider():
+        from providers import data_provider
+        return data_provider
 
     def get_shipments(self):
         """Returns a list of all shipments stored in the data."""
@@ -89,6 +98,20 @@ class Shipments(Base):
                     found = True
                     break
             if not found:
+                inventories = self.DataProvider().fetch_inventory_pool().get_inventories_for_item(x["item_id"])
+                max_ordered = -1
+                max_inventory = None
+                for z in inventories:
+                    if z["total_ordered"] > max_ordered:
+                        max_ordered = z["total_ordered"]
+                        max_inventory = z
+                max_inventory["total_ordered"] -= x["amount"]
+                max_inventory["total_expected"] = y["total_on_hand"] + y["total_ordered"]
+                self.DataProvider().fetch_inventory_pool().update_inventory(max_inventory["id"], max_inventory)
+        for x in current:
+            for y in items:
+                if x["item_id"] == y["item_id"]:
+                    inventories = self.DataProvider().fetch_inventory_pool().get_inventories_for_item(x["item_id"])
                 inventories = data_provider.fetch_inventory_pool().get_inventories_for_item(current_item["item_id"])
                 max_ordered = -1
                 max_inventory = None
