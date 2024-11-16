@@ -121,6 +121,7 @@ class TestEndpointsItemGroups:
         assert response.status_code == 200
         updated_item_group_data = self.load_item_group_data(self.DummyItem_group["id"])
         assert updated_item_group_data["name"] == self.DummyItem_group["name"]
+        # Type error hier. Nonetype not subscriptable...?
 
         response = httpx.put(f"{BASE_URL}/{1}", json=self.DummyItem_group, headers=self.headerlist[1])
         assert response.status_code == 403
@@ -134,11 +135,12 @@ class TestEndpointsItemGroups:
         # response = httpx.post(f"{BASE_URL}", json=self.DummyItem_group, headers=self.headerlist[0])
         response = httpx.delete(f"{BASE_URL}/{31}", headers=self.headerlist[0])
         assert response.status_code == 200
-        # 500 once again
+        # DEZE WERKT OMG
 
         response = httpx.get(f"{BASE_URL}/{31}", headers=self.headerlist[0])
         assert response.status_code == 404
-        # 500..
+        # DIT OOK!!! maar de response is fout het is 200 ipv 404 maar thank GOD niet meer die 500
+        # Maakte me helemaal gek
 
 
 if __name__ == '__main__':

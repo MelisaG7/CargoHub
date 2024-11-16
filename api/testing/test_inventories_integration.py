@@ -133,9 +133,12 @@ class TestEndpointsInventories:
         response = httpx.delete(f"{BASE_URL}/{11720}", headers=self.headerlist[0])
         assert response.status_code == 200
         # Come on man...Waarom die 500?
+        # Update: YAYYY its giving 200
         response = httpx.get(f"{BASE_URL}/{11720}", headers=self.headerlist[0])
         assert response.status_code == 404
         # OOk 500 WAAROOMMMMM
+        # Update: YAYYYY!!!! 200, wel fout maar niet van mij
+        # De server geeft wss 200 en null, ipv 404
 
         response = httpx.delete(f"{BASE_URL}/{11710}", headers=self.headerlist[1])
         assert response.status_code == 403
