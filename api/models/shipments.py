@@ -118,7 +118,7 @@ class Shipments(Base):
                             max_inventory = z
                     max_inventory["total_ordered"] += y["amount"] - x["amount"]
                     max_inventory["total_expected"] = y["total_on_hand"] + y["total_ordered"]
-                    data_provider.fetch_inventory_pool().update_inventory(max_inventory["id"], max_inventory)
+                    self.DataProvider().fetch_inventory_pool().update_inventory(max_inventory["id"], max_inventory)
         shipment["items"] = items
         self.update_shipment(shipment_id, shipment)
 
