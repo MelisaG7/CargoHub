@@ -43,6 +43,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Start API server
+      run: |
+        python api/main.py &  # Adjust the path to your server script
+        sleep 5  # Allow time for the server to start
     - name: Test with pytest
       run: |
         pytest
