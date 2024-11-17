@@ -16,6 +16,7 @@ class ApiRequestHandler(http.server.BaseHTTPRequestHandler):
             self.end_headers()
             return
         else:
+            # If the user has access to the get method:
             get_requests.handle_get_request(self, path)
 
     def do_GET(self):
@@ -30,8 +31,9 @@ class ApiRequestHandler(http.server.BaseHTTPRequestHandler):
                 path = self.path.split("/")
                 if len(path) > 3 and path[1] == "api" and path[2] == "v1":
                     self.handle_get_version_1(path[3:], user)
-            except Exception:
+            except Exception as e:
                 self.send_response(500)
+                print(e)
                 self.end_headers()
 
     def handle_post_version_1(self, path, user):
@@ -98,13 +100,17 @@ class ApiRequestHandler(http.server.BaseHTTPRequestHandler):
             self.send_response(201)
             self.end_headers()
         elif path[0] == "clients":
-            content_length = int(self.headers["Content-Length"])
-            post_data = self.rfile.read(content_length)
-            new_client = json.loads(post_data.decode())
-            data_provider.fetch_client_pool().add_client(new_client)
-            data_provider.fetch_client_pool().save()
-            self.send_response(201)
-            self.end_headers()
+            try:
+                content_length = int(self.headers["Content-Length"])
+                post_data = self.rfile.read(content_length)
+                new_client = json.loads(post_data.decode())
+                PostClient = data_provider.fetch_client_pool().add_client(new_client)
+                data_provider.fetch_client_pool().save()
+                get_requests.Call_json_response(self, PostClient)
+                #  Oh missing one required position it seems??
+                self.end_headers()
+            except Exception as e:
+                print(e)
         elif path[0] == "shipments":
             content_length = int(self.headers["Content-Length"])
             post_data = self.rfile.read(content_length)
@@ -297,9 +303,13 @@ class ApiRequestHandler(http.server.BaseHTTPRequestHandler):
             content_length = int(self.headers["Content-Length"])
             post_data = self.rfile.read(content_length)
             updated_client = json.loads(post_data.decode())
-            data_provider.fetch_client_pool().update_client(client_id, updated_client)
-            data_provider.fetch_client_pool().save()
-            self.send_response(200)
+            try:
+                PutClient = data_provider.fetch_client_pool().update_client(client_id, updated_client)
+                data_provider.fetch_client_pool().save()
+                get_requests.Call_json_response(self, PutClient)
+            except Exception as e:
+                print(f"Error in Call_json_response: {e}")
+            # Bij get request gaat er wat mis God knows what
             self.end_headers()
         elif path[0] == "shipments":
             paths = len(path)
@@ -428,9 +438,9 @@ class ApiRequestHandler(http.server.BaseHTTPRequestHandler):
             self.end_headers()
         elif path[0] == "clients":
             client_id = int(path[1])
-            data_provider.fetch_client_pool().remove_client(client_id)
+            RemoveClient = data_provider.fetch_client_pool().remove_client(client_id)
             data_provider.fetch_client_pool().save()
-            self.send_response(200)
+            get_requests.Call_json_response(self, RemoveClient)
             self.end_headers()
         elif path[0] == "shipments":
             shipment_id = int(path[1])
