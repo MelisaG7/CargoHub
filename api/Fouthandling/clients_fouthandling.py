@@ -1,16 +1,18 @@
-from models.clients import Clients
 
 
 class ClientsFoutHandling:
 
     def __init__(self):
-        self.clients = Clients("", True)
         self.RequiredFields = [
             "id", "name", "address", "city", 
-            "zipcode", "province", "country", 
+            "zip_code", "province", "country", 
             "contact_name", "contact_phone",
             "contact_email"
         ]
+
+    def clients():
+        from models.clients import Clients
+        return Clients("./data/", False)
 
     def check_valid_id(self, client_id):
         if client_id < 0:
@@ -32,10 +34,11 @@ class ClientsFoutHandling:
         if self.check_valid_body(client):
             # Check whether the ID in the JSON body already exists
             # in the database or not. Voorkom dubbele IDS
-            for klant in self.clients.client_database:
+            for klant in self.clients().client_database:
                 if klant["id"] == client["id"]:
                     return False
-        return True
+            return True
+        return False
 
     def check_put_client(self, client, client_id):
         # Make sure the ID in the JSON body is

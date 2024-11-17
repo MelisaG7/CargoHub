@@ -2,8 +2,35 @@ import json
 from providers import data_provider
 
 
-def send_json_response(self, data, status=200):
-    # This helper sends the data in json format back to the user with status 200
+def Call_json_response(self, data):
+    if isinstance(data, tuple):
+        send_json_response(self, data[0], data[1])
+    else:
+        send_json_response(self, data)
+
+
+def send_json_response(self, status: int = 200, data: dict = None):
+    # Heb ook ff dict and int erin gedaan bij parameters,
+    # wanneer er alleen 2 parameters wordt gestuurd de methode weet welke is
+
+    # Ik heb data optional gemaakt want als iets fout gaat wordt data niet gestuurd
+
+    # Deze methode is hetzelfde als dei daarboven,
+    # alleen wil ik die daarboven niet meteen refactoren
+    # Dit ga ik temporarely gebruiken voor mn eigen methodes + voor het uittesten
+
+    '''
+    Oke dus wanneer wij een methode aanroepen (data),
+    moet data wat teruggeven aan mij zodat ik weet welke response ik moet gaan sturen.
+
+    Of data moet een getal teruggeven zoals 200 om dan gelijk een response te kunnen sturen.
+    Ik denk dat ik daarvoor ga
+
+    Plan:
+    Laat get_client een methode terugsturen...+ een message? Maar hoe gaat dat dan precies?
+    Laten we eerst maar een status code proberen te sturen
+    '''
+    # Dit domme ding denkt dat data 400 is maar het is de status eigenlijk
     self.send_response(status)
     self.send_header("Content-type", "application/json")
     self.end_headers()
@@ -11,7 +38,7 @@ def send_json_response(self, data, status=200):
 
 
 def get_warehouses(self, path):
-    # The path is the api-route example: http://localhost:3000/api/v1/warehouses, this method checks the length of the route and connect to the methods in the models
+    # The path is the api-route example: warehouses/.../..., this method checks the length of the route and connect to the methods in the models
     # Which connects us to the data
     paths = len(path)
     match paths:
@@ -237,24 +264,37 @@ def get_orders(self, path):
 
 
 def get_clients(self, path):
+    # path is clients/<client_id>/<orders>
     paths = len(path)
     match paths:
         case 1:
+            # This calls the method 'get clients' in the class "Clients"
             clients = data_provider.fetch_client_pool().get_clients()
-            send_json_response(self, clients)
+            # The status in the 'send_json_response' is always 200
+            Call_json_response(self, clients)
         case 2:
             client_id = int(path[1])
             client = data_provider.fetch_client_pool().get_client(client_id)
-            send_json_response(self, client)
+            # Status sent is always 200 here too on default.
+            # Oke dus 'get_client' moet een client object returnen EN status code. Ik doe dat even in een tuple ofzo
+            # Je krijgt niet atlijd data, dus dat moet ook optional worden
+            Call_json_response(self, client)
         case 3:
+            # Als ik dit correct hebt begrepen is als de path 'clients/<client_id>/orders' is,
+            # dan krijg je de order van de client
             if path[2] == "orders":
                 client_id = int(path[1])
                 orders = data_provider.fetch_order_pool().get_orders_for_client(client_id)
                 send_json_response(self, orders)
             else:
+                # Als path[2] wat anders is, krijg je 404 statuscode
                 self.send_response(404)
                 self.end_headers()
         case _:
+            # Als je een andere case hebt, krijg je ook 404 statuscode
+            # Aha. Dus als ik wil dat deze domme functies andere status codes weergeven, moet ik dat hier regelen
+            # Hopefully I will cook. mhmmhmm
+            # Het enige wat ik moet weten is wrm die send_json_response wordt gecalled..
             self.send_response(404)
             self.end_headers()
 
@@ -287,6 +327,8 @@ def get_shipments(self, path):
 
 
 def handle_get_request(self, path):
+    # path in mijn geval i sbijvoorbeeld: clients/.../...
+    # If the user has access according to the first method in the main Get-version_1?? it calls this method:
     # We check wether the first part of the route is valid and redirect to that part of the code
     api_route = path[0]
     if api_route == "warehouses":
@@ -309,6 +351,8 @@ def handle_get_request(self, path):
         get_suppliers(self, path)
     elif api_route == "orders":
         get_orders(self, path)
+        # In my case (Mawadda) it should then call get_clients():
+        # The path would be: url/api/v1/clients? or url/api/v1/clients/<client_id>
     elif api_route == "clients":
         get_clients(self, path)
     elif api_route == "shipments":
