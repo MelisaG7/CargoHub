@@ -28,9 +28,9 @@ class Suppliers(Base):
         Returns:
             dict: The supplier data if found, otherwise None.
         """
-        for x in self.data:
-            if x["id"] == supplier_id:
-                return x
+        for supplier in self.data:
+            if supplier["id"] == supplier_id:
+                return supplier
         return None
 
     def add_supplier(self, supplier):
@@ -51,9 +51,9 @@ class Suppliers(Base):
             supplier (dict): The updated supplier data.
         """
         supplier["updated_at"] = self.get_timestamp()
-        for i in range(len(self.data)):
-            if self.data[i]["id"] == supplier_id:
-                self.data[i] = supplier
+        for index in range(len(self.data)):
+            if self.data[index]["id"] == supplier_id:
+                self.data[index] = supplier
                 break
 
     def remove_supplier(self, supplier_id):
@@ -62,9 +62,9 @@ class Suppliers(Base):
         Args:
             supplier_id (int): ID of the supplier to remove.
         """
-        for x in self.data:
-            if x["id"] == supplier_id:
-                self.data.remove(x)
+        for supplier in self.data:
+            if supplier["id"] == supplier_id:
+                self.data.remove(supplier)
 
     def load(self, is_debug):
         """Loads supplier data from JSON or debug data.
