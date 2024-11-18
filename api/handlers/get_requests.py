@@ -161,16 +161,16 @@ def get_item_groups(self, path):
     match paths:
         case 1:
             item_groups = data_provider.fetch_item_group_pool().get_item_groups()
-            send_json_response(self, item_groups)
+            Call_json_response(self, item_groups)
         case 2:
             item_group_id = int(path[1])
             item_group = data_provider.fetch_item_group_pool().get_item_group(item_group_id)
-            send_json_response(self, item_group)
+            Call_json_response(self, item_group)
         case 3:
             if path[2] == "items":
                 item_group_id = int(path[1])
                 items = data_provider.fetch_item_pool().get_items_for_item_group(item_group_id)
-                send_json_response(self, items)
+                Call_json_response(self, items)
             else:
                 self.send_response(404)
                 self.end_headers()
@@ -207,11 +207,11 @@ def get_inventories(self, path):
     match paths:
         case 1:
             inventories = data_provider.fetch_inventory_pool().get_inventories()
-            send_json_response(self, inventories)
+            Call_json_response(self, inventories)
         case 2:
             inventory_id = int(path[1])
             inventory = data_provider.fetch_inventory_pool().get_inventory(inventory_id)
-            send_json_response(self, inventory)
+            Call_json_response(self, inventory)
         case _:
             self.send_response(404)
             self.end_headers()
