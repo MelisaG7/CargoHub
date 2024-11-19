@@ -98,30 +98,6 @@ class Shipments(Base):
                 if current_item["item_id"] == updated_item["item_id"]:
                     item_still_exists = True
                     break
-            if not found:
-                inventories = self.DataProvider().fetch_inventory_pool().get_inventories_for_item(x["item_id"])
-                max_ordered = -1
-                max_inventory = None
-                for z in inventories:
-                    if z["total_ordered"] > max_ordered:
-                        max_ordered = z["total_ordered"]
-                        max_inventory = z
-                max_inventory["total_ordered"] -= x["amount"]
-                max_inventory["total_expected"] = y["total_on_hand"] + y["total_ordered"]
-                self.DataProvider().fetch_inventory_pool().update_inventory(max_inventory["id"], max_inventory)
-        for x in current:
-            for y in items:
-                if x["item_id"] == y["item_id"]:
-                    inventories = self.DataProvider().fetch_inventory_pool().get_inventories_for_item(x["item_id"])
-                    max_ordered = -1
-                    max_inventory
-                    for z in inventories:
-                        if z["total_ordered"] > max_ordered:
-                            max_ordered = z["total_ordered"]
-                            max_inventory = z
-                    max_inventory["total_ordered"] += y["amount"] - x["amount"]
-                    max_inventory["total_expected"] = y["total_on_hand"] + y["total_ordered"]
-                    self.DataProvider().fetch_inventory_pool().update_inventory(max_inventory["id"], max_inventory)
             if not item_still_exists:
                 inventories = self.DataProvider().fetch_inventory_pool().get_inventories_for_item(current_item["item_id"])
                 highest_ordered = -1
@@ -168,7 +144,6 @@ class Shipments(Base):
         # Replace the shipment's items with the updated items
         shipment["items"] = items
         self.update_shipment(shipment_id, shipment)
-
 
     def remove_shipment(self, shipment_id):
         """Removes a shipment from the data based on the shipment ID.
