@@ -36,7 +36,7 @@ class PostRequests():
         else:
             self.send_response(404)
             self.end_headers()
-  
+
     def post_object(self, AddObjectMethod, SaveObjectMethod):
         content_length = int(self.headers["Content-length"])
         post_data = self.rfile.read(content_length)

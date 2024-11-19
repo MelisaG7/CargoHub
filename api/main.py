@@ -56,7 +56,7 @@ class ApiRequestHandler(http.server.BaseHTTPRequestHandler):
             elif HttpMethod == "post":
                 PostRequests.ChoosePath(self, path[0])
             elif HttpMethod == "put":
-                PutRequests.put_object(self, path[0])
+                PutRequests.ChoosePath(self, path)
             elif HttpMethod == "delete":
                 # Dit zien we later wel
                 delete_requests.delete_object(self, path, user)
