@@ -60,8 +60,8 @@ jobs:
         # Report and write to summary.
         coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
 
-        # Report again and fail if under 70%.
-        coverage report --fail-under=70
+        # Report again and fail if under 80%.
+        coverage report --fail-under=80
     - name: Store coverage report
       uses: actions/upload-artifact@v4
       with:
