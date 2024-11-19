@@ -18,7 +18,7 @@ class Inventories(Base):
     def __init__(self, root_path, is_debug=False):
         self.inventory_database_path = root_path + "inventories.json"
         self.load(is_debug)
-    
+
     @staticmethod
     def FoutHandling():
         from Fouthandling.inventories_fouthandling import InventoriesFoutHandling
