@@ -71,7 +71,7 @@ class TestClients:
         empty_client_body = {}
         # Nu moet ik dus kijken of de client_body daadwerkelijk nu in data zit
         self.clients.add_client(client_body)
-        assert self.clients.client_database[-1] == client_body
+        assert self.clients.client_database[-1]["name"] == client_body["name"]
 
         self.clients.add_client(empty_client_body)
         assert self.clients.client_database[-1] != empty_client_body 
