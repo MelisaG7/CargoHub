@@ -16,7 +16,7 @@ class ApiRequestHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         # When a get request is received this method sends the API-key to check wether the user exists
         self.check_user("get")
-  
+
     def do_POST(self):
         self.check_user("post")
 
@@ -29,7 +29,7 @@ class ApiRequestHandler(http.server.BaseHTTPRequestHandler):
     def check_user(self, HttpMethod):
         api_key = self.headers.get("API_KEY")
         user = auth_provider.get_user(api_key)
-        if user == None:
+        if user is None:
             self.send_response(401)
             self.end_headers()
         else:
@@ -56,7 +56,7 @@ class ApiRequestHandler(http.server.BaseHTTPRequestHandler):
             elif HttpMethod == "post":
                 PostRequests.ChoosePath(self, path[0])
             elif HttpMethod == "put":
-                PutRequests.put_object(self, path[0])
+                PutRequests.ChoosePath(self, path)
             elif HttpMethod == "delete":
                 # Dit zien we later wel
                 delete_requests.delete_object(self, path, user)

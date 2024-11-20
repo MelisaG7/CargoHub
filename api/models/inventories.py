@@ -18,7 +18,7 @@ class Inventories(Base):
     def __init__(self, root_path, is_debug=False):
         self.inventory_database_path = root_path + "inventories.json"
         self.load(is_debug)
-    
+
     @staticmethod
     def FoutHandling():
         from Fouthandling.inventories_fouthandling import InventoriesFoutHandling
@@ -94,7 +94,7 @@ class Inventories(Base):
                 # Then the method returns the totals/result dictionary
         return inventory_totals
 
-    def add_inventory(self, inventory):
+    def add(self, inventory):
         if not self.FoutHandling().check_add_inventory(inventory):
             return (400, "Invalid inventory body")
         '''

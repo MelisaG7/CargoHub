@@ -34,7 +34,7 @@ class Warehouses(Base):
                 return warehouse
         return None
 
-    def add_warehouse(self, warehouse):
+    def add(self, warehouse):
         """
         Add a new warehouse object to the JSON data, setting timestamps for creation and update.
 

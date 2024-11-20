@@ -33,7 +33,7 @@ class Suppliers(Base):
                 return supplier
         return None
 
-    def add_supplier(self, supplier):
+    def add(self, supplier):
         """Adds a new supplier to the data with created and updated timestamps.
         
         Args:

@@ -68,6 +68,22 @@ def init():
 # that can retrieve, update, delete, add data to the Warehouse database.
 
 
+POOL_DICT = {
+    'warehouses': lambda: _warehouses,
+    'locations': lambda: _locations,
+    'transfers': lambda: _transfers,
+    'items': lambda: _items,
+    'item_lines': lambda:  _item_lines,
+    'item_groups': lambda: _item_groups,
+    'item_types': lambda: _item_types,
+    'inventories': lambda: _inventories,
+    'suppliers': lambda: _suppliers,
+    'orders': lambda: _orders,
+    'clients': lambda: _clients,
+    'shipments': lambda: _shipments
+}
+
+
 def Orders(root_path: str, is_debug: bool):
     from models.orders import Orders
     return Orders(root_path, is_debug)
@@ -78,61 +94,7 @@ def Shipments(root_path: str, is_debug: bool):
     return Shipments(root_path, is_debug)
 
 
-def fetch_warehouse_pool():
-    # This method returns an object of the class Warehouses.
-    return _warehouses
-
-
-def fetch_location_pool():
-    # Returns an object of type Locations
-    return _locations
-
-
-def fetch_transfer_pool():
-    # Returns an object of type Transfers
-    return _transfers
-
-
-def fetch_item_pool():
-    # Returns and object of type Items
-    return _items
-
-
-def fetch_item_line_pool():
-    # Returns an object of type ItemLines
-    return _item_lines
-
-
-def fetch_item_group_pool():
-    # Returns an object of type ItemGroups
-    return _item_groups
-
-
-def fetch_item_type_pool():
-    # Returns an object of type ItemTypes
-    return _item_types
-
-
-def fetch_inventory_pool():
-    # Returns an object of type Inventories
-    return _inventories
-
-
-def fetch_supplier_pool():
-    # Returns an object of type Suppliers
-    return _suppliers
-
-
-def fetch_order_pool():
-    # Returns an object of type Orders
-    return _orders
-
-
-def fetch_client_pool():
-    # Returns an object of type Clients
-    return _clients
-
-
-def fetch_shipment_pool():
-    # Returns an object of type Shipments
-    return _shipments
+def fetch_pool(model: str):
+    for model in POOL_DICT:
+        return POOL_DICT[model]
+    raise ValueError(f"Wrong pool name {model}")

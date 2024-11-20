@@ -36,7 +36,7 @@ class ItemTypes(Base):
                 return item_type
         return None
 
-    def add_item_type(self, item_type):
+    def add(self, item_type):
         """
         Add a new item type object to the JSON data, setting timestamps for creation and update.
 

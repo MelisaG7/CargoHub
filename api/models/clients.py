@@ -44,7 +44,7 @@ class Clients(Base):
         return (404, f"Client with id {client_id} was not found")
     # In both cases the method returns a 200 status code
 
-    def add_client(self, client):
+    def add(self, client):
         if not self.FoutHandling().check_add_client(client):
             return (400, client)
         # Adds a client object from the database.

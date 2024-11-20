@@ -87,7 +87,7 @@ class Items(Base):
         """
         return self.get_items_for_field("supplier_id", supplier_id)
 
-    def add_item(self, item):
+    def add(self, item):
         """
         Add a new item to the data with timestamps for creation and update.
 

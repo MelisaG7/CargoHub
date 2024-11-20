@@ -57,7 +57,7 @@ class Shipments(Base):
                 return shipment["items"]
         return None
 
-    def add_shipment(self, shipment):
+    def add(self, shipment):
         """Adds a new shipment to the data with created and updated timestamps.
         
         Args:
