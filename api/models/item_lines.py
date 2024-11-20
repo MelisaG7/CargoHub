@@ -34,7 +34,7 @@ class ItemLines(Base):
                 return item_line
         return None
 
-    def add_item_line(self, item_line):
+    def add(self, item_line):
         """
         Add a new item line to the JSON data with timestamps for creation and update.
 

@@ -87,7 +87,7 @@ class Orders(Base):
                 result.append(order)
         return result
 
-    def add_order(self, order):
+    def add(self, order):
         """Voegt een nieuwe bestelling toe aan de data met tijdstempels voor aanmaak en update.
         
         Args:

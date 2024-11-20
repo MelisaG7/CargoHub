@@ -36,7 +36,7 @@ class ItemGroups(Base):
             '''
         return None
 
-    def add_item_group(self, item_group):
+    def add(self, item_group):
         '''
         This method adds/replaces the values of 'created_at' and
         'updated_at' of the passed object to the current date and time

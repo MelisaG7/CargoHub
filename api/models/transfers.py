@@ -47,7 +47,7 @@ class Transfers(Base):
                 return x["items"]
         return None
 
-    def add_transfer(self, transfer):
+    def add(self, transfer):
         """Adds a new transfer to the data with an initial status and timestamps.
         
         Args:

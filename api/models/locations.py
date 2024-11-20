@@ -53,7 +53,7 @@ class Locations(Base):
                 locations_in_warehouse.append(location)
         return locations_in_warehouse
 
-    def add_location(self, location):
+    def add(self, location):
         """Voegt een nieuwe locatie toe aan de data met tijdstempels voor aanmaak en update.
         
         Args:

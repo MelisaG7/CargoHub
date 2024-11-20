@@ -94,7 +94,7 @@ class Inventories(Base):
                 # Then the method returns the totals/result dictionary
         return inventory_totals
 
-    def add_inventory(self, inventory):
+    def add(self, inventory):
         if not self.FoutHandling().check_add_inventory(inventory):
             return (400, "Invalid inventory body")
         '''
