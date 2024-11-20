@@ -51,3 +51,19 @@ jobs:
       run: |
         pytest
         pytest --cov --cov-report term --cov-report xml:coverage.xml
+        coverage run -m pytest
+    - name: Run code coverage
+      run: |
+        # Run coverage report
+        #coverage xml
+
+        # Report and write to summary.
+        coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
+
+        # Report again and fail if under 80%.
+        coverage report --fail-under=80
+    - name: Store coverage report
+      uses: actions/upload-artifact@v4
+      with:
+        path: coverage.xml
+      if: ${{ failure() }}
