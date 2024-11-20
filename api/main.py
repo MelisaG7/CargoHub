@@ -81,6 +81,14 @@ class ApiRequestHandler(http.server.BaseHTTPRequestHandler):
             data_provider.fetch_item_line_pool().save()
             self.send_response(201)
             self.end_headers()
+        elif path[0] == "item_types":
+            content_length = int(self.headers["Content-Length"])
+            post_data = self.rfile.read(content_length)
+            new_item_type = json.loads(post_data.decode())
+            data_provider.fetch_item_type_pool().add_item_type(new_item_type)
+            data_provider.fetch_item_type_pool().save()
+            self.send_response(201)
+            self.end_headers()
         elif path[0] == "inventories":
             content_length = int(self.headers["Content-Length"])
             post_data = self.rfile.read(content_length)
