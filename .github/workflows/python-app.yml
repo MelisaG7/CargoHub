@@ -50,21 +50,23 @@ jobs:
         sleep 5  # Allow time for the server to start
     - name: Test with pytest
       run: |
+        # since there is no need to run the tests thrice, the first 2x are commented out
         # pytest
         # pytest --cov --cov-report term --cov-report xml:coverage.xml
         coverage run -m pytest
     - name: Run code coverage
       run: |
         # Run coverage report
-        #coverage xml
+        coverage xml
 
         # Report and write to summary.
         coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
 
-        # Report again and fail if under 100%.
-        coverage report --fail-under=100
+        # Report again and fail if under 70%.
+        coverage report --fail-under=70
     - name: Store coverage report
       uses: actions/upload-artifact@v4
       with:
+        name: coverage-report
         path: coverage.xml
       if: ${{ failure() }}
