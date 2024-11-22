@@ -37,7 +37,8 @@ class ItemGroupsFoutHandling:
             for itemgroep in self.itemgroups.item_groups_database:
                 if itemgroep["id"] == itemgroup["id"]:
                     return False
-        return True
+            return True
+        return False
 
     def check_put_itemgroup(self, itemgroup, itemgroup_id):
         if self.check_valid_body(itemgroup):

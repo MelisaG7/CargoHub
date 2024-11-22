@@ -52,11 +52,12 @@ class InventoriesFoutHandling:
             for inventaris in self.inventories.inventory_database:
                 if inventaris["id"] == inventory["id"]:
                     return False
-        return True
+            return True
+        return False
 
     def check_put_inventory(self, inventory, inventory_id):
         # checks valid body
-        if self.check_valid_body(self, inventory):
+        if self.check_valid_body(inventory):
             # checks if id body == id parameter
             if inventory["id"] != inventory_id:
                 return False

@@ -269,7 +269,7 @@ def get_clients(self, path):
     match paths:
         case 1:
             # This calls the method 'get clients' in the class "Clients"
-            clients = data_provider.fetch_client_pool().get_clients()
+            clients = data_provider.POOL_DICT[path[0]].get_clients()
             # The status in the 'send_json_response' is always 200
             Call_json_response(self, clients)
         case 2:

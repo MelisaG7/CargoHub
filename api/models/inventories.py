@@ -107,7 +107,7 @@ class Inventories(Base):
         self.inventory_database.append(inventory)
         return (201, "Inventory successfully added to the database")
 
-    def update_inventory(self, inventory_id, inventory):
+    def update(self, inventory_id, inventory):
         if not self.FoutHandling().check_put_inventory(inventory, inventory_id):
             return (400, "Invalid id or inventory body")
         '''
@@ -115,15 +115,15 @@ class Inventories(Base):
         passed inventory object with the current date and time 
         '''
         inventory["updated_at"] = self.get_timestamp()
-        for inventory in range(len(self.inventory_database)):
+        for inventaris in self.inventory_database:
             # It loops through the database
-            if self.inventory_database[inventory]["id"] == inventory_id:
+            if inventaris["id"] == inventory_id:
                 '''
                 if an inventory object was found with a matching id,
                 it replaces all values, with the values of
                 the passed inventory object. It replaces the entire object.
                 '''
-                self.inventory_database[inventory] = inventory
+                inventaris.update(inventory)
                 return (200, "inventory succesfully updated")
 
     def remove_inventory(self, inventory_id):

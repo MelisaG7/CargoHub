@@ -15,7 +15,7 @@ class Clients(Base):
     def __init__(self, root_path, is_debug=False):
         self.client_database_path = root_path + "clients.json"
         self.load(is_debug)
-    
+
     # Prevents circulaire import
     @staticmethod
     def FoutHandling():
@@ -61,7 +61,7 @@ class Clients(Base):
         # There is no fouthandling though, in none of the methods.
         return (201, "Client was succesfully added to the database")
 
-    def update_client(self, client_id, client):
+    def update(self, client_id, client):
         if not self.FoutHandling().check_put_client(client, client_id):
             return (400, "Invalid client body or id")
         # The server receives a client id and a client object as a JSON body.'
@@ -79,13 +79,14 @@ class Clients(Base):
         After updating, the system changes the updating date and time,
         to the date and time when the updating took place.
         '''
-        for client in range(len(self.client_database)):
+        # FOUT FOR LOOP! HET VERANDERD OBJECTEN IN NUMMERS!
+        for klant in self.client_database:
             '''
             the system searches through the database,
             until it finds an object,that matches the id given as a parameter
             '''
-            if self.client_database[client]["id"] == client_id:
-                self.client_database[client] = client
+            if klant["id"] == client_id:
+                klant.update(client)
                 '''
                 The system replaces all values of the found client object,
                 with the values of the client object sent as a parameter

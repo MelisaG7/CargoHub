@@ -10,7 +10,7 @@ class ClientsFoutHandling:
             "contact_email"
         ]
 
-    def clients():
+    def clients(self):
         from models.clients import Clients
         return Clients("./data/", False)
 

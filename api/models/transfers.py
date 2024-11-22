@@ -1,8 +1,12 @@
 import json
 
 from models.base import Base
+from processors import notification_processor
+from providers import data_provider
+
 
 TRANSFERS = []
+
 
 class Transfers(Base):
     def __init__(self, root_path, is_debug=False):
@@ -80,10 +84,42 @@ class Transfers(Base):
         for transfer in self.data:
             if transfer["id"] == transfer_id:
                 self.data.remove(transfer)
+    '''
+    This method under was previously in the put_requests file,
+    but it made the code too messy.
+    Since this only happnes in transfers and with transfer objects,
+    I decided to move this to transfers.py
+    '''
+    def process_commit(self, transfer):
+        # Transfer object ^
+        for item in transfer["items"]:
+            # loops through the collection in the key
+            # 'items' of the transfer object
+            inventories = data_provider.POOL_DICT[
+                "inventories"].get_inventories_for_item(item["item_id"])
+            # For every item it accesses its inventories
+            # with help of its unique item id
+            for inventory in inventories:
+                # for every inventory of that item:
+                if inventory["location_id"] == transfer["transfer_from"]:
+                    inventory["total_on_hand"] -= item["amount"]
+                elif inventory["location_id"] == transfer["transfer_to"]:
+                    inventory["total_on_hand"] += item["amount"]
+                inventory["total_expected"] = inventory["total_on_hand"] + inventory["total_ordered"]
+                inventory["total_available"] = inventory["total_on_hand"] - inventory["total_allocated"]
+                data_provider.POOL_DICT["inventories"].update(inventory["id"], inventory)
+                # After doing some shit and
+                # updating every inventory it gives a message:
+        transfer["transfer_status"] = "Processed"
+        # the message is processed 
+        # given by the transfer_status key in transfer object
+        notification_processor.push(
+            f"Processed batch transfer with id:{transfer['id']}")
+        # It pushes that message to the terminal I guess?
 
     def load(self, is_debug):
         """Loads transfer data from a JSON file or debug data if specified.
-        
+ 
         Args:
             is_debug (bool): If True, loads debug data instead of reading from the JSON file.
         """
