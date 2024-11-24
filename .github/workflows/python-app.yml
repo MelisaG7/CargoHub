@@ -5,8 +5,9 @@ name: Python application
 
 on:
   push:
-    # change develop to main when everything is finished
-    branches: [ "develop" ]
+    branches:
+      -main
+      -develop
 
 jobs:
   build:
