@@ -62,12 +62,12 @@ def test_update_item_type():
 def test_remove_item_type():
     """Test removing an existing item type."""
     item_types.data = DUMMY_DATA
-    amount = len(DUMMY_DATA)
+    amount = len(item_types.data)
     item_types.remove_item_type(2)
 
     # Check if the item was removed
     data = item_types.get_item_types()
-    updated_amount = len(DUMMY_DATA)
+    updated_amount = len(item_types.data)
 
     assert updated_amount == amount - 1
     assert all(item["id"] != 2 for item in data)

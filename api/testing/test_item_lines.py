@@ -70,7 +70,7 @@ def test_remove_item_line():
     amount = len(item_lines.data)
 
     item_lines.remove_item_line(2)
-    updated_amount = len(DUMMY_DATA)
+    updated_amount = len(item_lines.data)
     # Check if the item was removed
     data = item_lines.get_item_lines()
     assert updated_amount == amount - 1
