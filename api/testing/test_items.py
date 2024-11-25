@@ -96,10 +96,12 @@ def test_update_item():
 def test_remove_item():
     """Test removing an existing item."""
     items.data = DUMMY_DATA
+    amount = len(items.data)
 
     items.remove_item("P000003")
 
     # Check if the item was removed
     data = items.get_items()
-    assert len(data) == 2
+    updated_amount = len(items.data)
+    assert updated_amount == amount - 1
     assert all(item["uid"] != "P000003" for item in data)
