@@ -18,21 +18,21 @@ item_types = ItemTypes(".data/", True)
 
 def test_get_item_types():
     """Test retrieving all item types from the data."""
-    item_types.data = DUMMY_DATA
+    item_types.data = DUMMY_DATA.copy()
     data = item_types.get_item_types()
     assert data == DUMMY_DATA
 
 
 def test_get_item_type():
     """Test retrieving a specific item type by ID."""
-    item_types.data = DUMMY_DATA
+    item_types.data = DUMMY_DATA.copy()
     assert item_types.get_item_type(2) == DUMMY_DATA[1]
     assert item_types.get_item_type(999) is None  # Test for non-existing ID
 
 
 def test_add_item_type():
     """Test adding a new item type."""
-    item_types.data = DUMMY_DATA
+    item_types.data = DUMMY_DATA.copy()
     new_item = {"id": 4, "name": "Laptop", "description": ""}
     item_types.add_item_type(new_item)
 
@@ -47,7 +47,7 @@ def test_add_item_type():
 
 def test_update_item_type():
     """Test updating an existing item type."""
-    item_types.data = DUMMY_DATA
+    item_types.data = DUMMY_DATA.copy()
     updated_item = {"id": 2, "name": "Updated Tablet",
                     "description": "Updated description"}
     item_types.update_item_type(2, updated_item)
@@ -61,7 +61,7 @@ def test_update_item_type():
 
 def test_remove_item_type():
     """Test removing an existing item type."""
-    item_types.data = DUMMY_DATA
+    item_types.data = DUMMY_DATA.copy()
     amount = len(item_types.data)
     item_types.remove_item_type(2)
 
