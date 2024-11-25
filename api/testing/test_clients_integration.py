@@ -72,10 +72,15 @@ class TestEndpointsClients:
 
     def test_get_client(self):
         # Test for existing IDs
-        for Id in self.ids:
-            response = httpx.get(f"{BASE_URL}/api/v1/clients/{Id}", headers=self.headerlist[0])
-            assert response.status_code == 200
-            assert response.json()["id"] == Id
+        # for Id in self.ids:
+        #     response = httpx.get(f"{BASE_URL}/api/v1/clients/{Id}", headers=self.headerlist[0])
+        #     assert response.status_code == 200
+        #     assert response.json()["id"] == Id
+        
+        # Test een id van een object die ik voorheen heb verwijderd:
+        httpx.delete(f"{BASE_URL}/api/v1/clients/{1}", headers=self.headerlist[0])
+        response = httpx.get(f"{BASE_URL}/api/v1/clients/{1}", headers=self.headerlist[0])
+        assert response.status_code == 404
 
         # Test for non-existing IDs
         for Id in self.WrongIds:

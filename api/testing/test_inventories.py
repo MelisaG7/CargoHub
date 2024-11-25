@@ -140,6 +140,7 @@ class TestInventories:
         assert self.inventories.inventory_database.__len__() == 3
         self.inventories.add_inventory(to_be_added_empty)
         assert self.inventories.inventory_database.__len__() == 3
+        # Huh wrm is dat 4? Ohja omdat empty ook wordt geadd vgm jaa juiste
 
     def test_remove_inventory(self):
         self.inventories.remove_inventory(13)
