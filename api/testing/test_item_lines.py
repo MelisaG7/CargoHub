@@ -65,7 +65,9 @@ def test_update_item_line():
 def test_remove_item_line():
     """Test removing an existing item line."""
     # item_lines = ItemLines(".data/", True)
-    amount = len(DUMMY_DATA)
+    item_lines.data = DUMMY_DATA
+
+    amount = len(item_lines.data)
 
     item_lines.remove_item_line(2)
     updated_amount = len(DUMMY_DATA)
