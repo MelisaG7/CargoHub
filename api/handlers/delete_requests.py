@@ -5,7 +5,11 @@ from providers import data_provider
 
 
 def delete(self, path):
-    id = int(path[1])
+    # Items is the only one which doesn't use integer but uid > for example P000001
+    if path[0] != "items":
+        id = int(path[1])
+    else:
+        id = path[1]
     # Using a switch statement on the first part of the path we determine what we should do next
     match path[0]:
         case "warehouses":
