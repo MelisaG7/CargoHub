@@ -4,7 +4,8 @@ from handlers import get_requests
 
 
 def delete_object(self, path, user):
-    # Melisa ik doe dit even hier als je klaar bent kan je verwijderen en je eigen methode in de main stoppen
+    # Melisa ik doe dit even hier als je klaar bent kan je verwijderen en je
+    # eigen methode in de main stoppen
     if not auth_provider.has_access(user, path, "delete"):
         self.send_response(403)
         self.end_headers()
@@ -71,7 +72,8 @@ def delete_object(self, path, user):
         self.end_headers()
     elif path[0] == "clients":
         client_id = int(path[1])
-        RemoveClient = data_provider.fetch_client_pool().remove_client(client_id)
+        RemoveClient = data_provider.fetch_client_pool(
+        ).remove_client(client_id)
         data_provider.fetch_client_pool().save()
         get_requests.Call_json_response(self, RemoveClient)
         self.end_headers()
@@ -93,9 +95,11 @@ def handle_delete_resource(self, resource_type, resource_id):
         "transfers": (data_provider.fetch_transfer_pool(), "remove_transfer"),
         "items": (data_provider.fetch_item_pool(), "remove_item"),
         "item_lines": (data_provider.fetch_item_line_pool(), "remove_item_line"),
-        "item_groups": (data_provider.fetch_item_group_pool(), "remove_item_group"),
+        "item_groups": (data_provider.fetch_item_group_pool(),
+                        "remove_item_group"),
         "item_types": (data_provider.fetch_item_type_pool(), "remove_item_type"),
-        "inventories": (data_provider.fetch_inventory_pool(), "remove_inventory"),
+        "inventories": (data_provider.fetch_inventory_pool(),
+                        "remove_inventory"),
         "suppliers": (data_provider.fetch_supplier_pool(), "remove_supplier"),
         "orders": (data_provider.fetch_order_pool(), "remove_order"),
         "clients": (data_provider.fetch_client_pool(), "remove_client"),

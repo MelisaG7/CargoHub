@@ -1,16 +1,16 @@
 # Imports all classes from the files in the 'models' folder
-from models.warehouses import Warehouses
-from models.locations import Locations
-from models.transfers import Transfers
-from models.items import Items
-from models.item_lines import ItemLines
-from models.item_groups import ItemGroups
-from models.item_types import ItemTypes
-from models.inventories import Inventories
-from models.suppliers import Suppliers
-# from models.orders import Orders
-from models.clients import Clients
-# from models.shipments import Shipments
+from services.warehouses import Warehouses
+from services.locations import Locations
+from services.transfers import Transfers
+from services.items import Items
+from services.item_lines import ItemLines
+from services.item_groups import ItemGroups
+from services.item_types import ItemTypes
+from services.inventories import Inventories
+from services.suppliers import Suppliers
+# from services.orders import Orders
+from services.clients import Clients
+# from services.shipments import Shipments
 
 # constant boolean set to False
 DEBUG = False
@@ -56,15 +56,16 @@ def init():
         'shipments': _shipments
     }
 
+
 def Orders(root_path: str, is_debug: bool):
-    from models.orders import Orders
+    from services.orders import Orders
     return Orders(root_path, is_debug)
 
 
 # Order and shipment method to prevent circulair import
 
 def Shipments(root_path: str, is_debug: bool):
-    from models.shipments import Shipments
+    from services.shipments import Shipments
     return Shipments(root_path, is_debug)
 
 # Calls the lambda in the dictionary op basis van key

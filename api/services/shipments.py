@@ -1,6 +1,6 @@
 import json
 
-from models.base import Base
+from services.base import Base
 # from providers import data_provider
 
 SHIPMENTS = []
