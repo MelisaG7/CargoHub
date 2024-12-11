@@ -28,9 +28,7 @@ class TestEndpointsClients:
             "country": "Stateless",
             "contact_name": "Takeshi Steele",
             "contact_phone": "242.732.3483x2573",
-            "contact_email": "steeletakeshi@example.net",
-            "created_at": "2010-04-28 02:22:53",
-            "updated_at": "2022-02-09 20:22:35"
+            "contact_email": "steeletakeshi@example.net"
         }
         self.WrongDummyClient = {
             "id": 9822,
@@ -80,7 +78,7 @@ class TestEndpointsClients:
         # Test for non-existing IDs
         for Id in self.WrongIds:
             response = httpx.get(f"{BASE_URL}/api/v1/clients/{Id}", headers=self.headerlist[0])
-            assert response.status_code == 404
+            assert response.status_code == 400 or response.status_code == 422
             # Oke dus ookal vind het geen clients, het geeft alsnog 200.
     # Deze functie werkt ook volledig
 
@@ -97,14 +95,14 @@ class TestEndpointsClients:
         # Dit werkt
 
         response = httpx.post(f"{BASE_URL}/api/v1/clients", json=self.WrongDummyClient, headers=self.headerlist[0])
-        assert response.status_code == 400
+        assert response.status_code == 422
         # Fout dummy wordt toch naar de database toegevoegd, ookal mist het. Dus geen fouthandling
     # Deze methode werkt ook naar behoren
 
     def test_put_client(self):
-        response = httpx.put(f"{BASE_URL}/api/v1/clients/{1}", json=self.DummyClient, headers=self.headerlist[0])
+        response = httpx.put(f"{BASE_URL}/api/v1/clients/{9821}", json=self.DummyClient, headers=self.headerlist[0])
         assert response.status_code == 200
-        updated_client_data = self.load_client_data(1)
+        updated_client_data = self.load_client_data(9821)
         assert updated_client_data["name"] == self.DummyClient["name"]
         assert updated_client_data["city"] == self.DummyClient["city"]
         # Omdat de id van onze dummyclient anders is, wordt ook de client met nummer 1 veranderd naar nummer 9821

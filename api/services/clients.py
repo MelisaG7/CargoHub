@@ -6,6 +6,7 @@ from models.Models import Client
 # Heb gemaakt voor jullie
 # Graaggedaan
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import JSONResponse
 
 CLIENTS = []
 
@@ -29,9 +30,9 @@ class Clients(Base):
 
         # Vgm hoef ik hier niet veel uit te leggen,
         # doe dit gwn voor elke endpoint die je hebt
-        self.router.add_api_route("/clients/", self.get_clients, methods=["GET"])
+        self.router.add_api_route("/clients", self.get_clients, methods=["GET"])
         self.router.add_api_route("/clients/{client_id}", self.get_client, methods=["GET"])
-        self.router.add_api_route("/clients/", self.add_client, methods=["POST"])
+        self.router.add_api_route("/clients", self.add_client, methods=["POST"])
         self.router.add_api_route("/clients/{client_id}", self.update_client, methods=["PUT"])
         self.router.add_api_route("/clients/{client_id}", self.remove_client, methods=["DELETE"])
 
@@ -84,7 +85,8 @@ class Clients(Base):
         client_data["updated_at"] = self.get_timestamp()
         # The system adds the clientobject to the database
         self.client_database.append(client_data)
-        return {"message": "Client was succesfully added to the database"}
+        self.save()
+        return JSONResponse(status_code=201, content={"message": "Client was succesfully added to the database"})
 
     def update_client(self, client_id: int, client: Client):
         if not self.FoutHandling().check_put_client(client, client_id):
@@ -117,6 +119,7 @@ class Clients(Base):
                 The system replaces all values of the found client object,
                 with the values of the client object sent as a parameter
                 '''
+                self.save()
                 return {"message": "client successfully updated."}
 
     def remove_client(self, client_id: int):
@@ -138,6 +141,7 @@ class Clients(Base):
                 if a client object is found,
                 the system deletes it from the database.
                 '''
+                self.save()
                 return {"message":
                         "client successfully removed from the database."}
 

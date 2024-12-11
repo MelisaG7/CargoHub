@@ -1,5 +1,5 @@
 import pytest
-from models.clients import Clients
+from services.clients import Clients
 
 
 class TestClients:
@@ -74,7 +74,7 @@ class TestClients:
         assert self.clients.client_database[-1] == client_body
 
         self.clients.add_client(empty_client_body)
-        assert self.clients.client_database[-1] != empty_client_body 
+        assert self.clients.client_database[-1] != empty_client_body
         # FOUT DETECTED!! Een lege body sturen werkt WEL!
 
         self.clients.add_client(wrong_client_body)

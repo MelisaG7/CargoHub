@@ -1,6 +1,8 @@
 import json
-
+from models.Models import Inventory
 from services.base import Base
+from fastapi import HTTPException, APIRouter
+from fastapi.responses import JSONResponse
 
 INVENTORIES = []
 
@@ -18,6 +20,13 @@ class Inventories(Base):
     def __init__(self, root_path, is_debug=False):
         self.inventory_database_path = root_path + "inventories.json"
         self.load(is_debug)
+        self.router = APIRouter()
+
+        self.router.add_api_route("/inventories", self.get_inventories, methods=["GET"])
+        self.router.add_api_route("/inventories/{inventory_id}", self.get_inventory, methods=["GET"])
+        self.router.add_api_route("/inventories", self.add_inventory, methods=["POST"])
+        self.router.add_api_route("/inventories/{inventory_id}", self.update_inventory, methods=["PUT"])
+        self.router.add_api_route("/inventories/{inventory_id}", self.remove_inventory, methods=["DELETE"])
 
     @staticmethod
     def FoutHandling():
@@ -26,11 +35,11 @@ class Inventories(Base):
 
     def get_inventories(self):
         # This method returns all inventory objects in the database
-        return (200, self.inventory_database)
+        return self.inventory_database
 
-    def get_inventory(self, inventory_id):
-        if not self.FoutHandling().check_get_inventory(self, inventory_id):
-            return (400, f"Invalid inventory id: {inventory_id}")
+    def get_inventory(self, inventory_id: int):
+        if not self.FoutHandling().check_get_inventory(inventory_id):
+            raise HTTPException(status_code=400, detail=f"Invalid id: {inventory_id}")
         '''
         This method receives an inventory_id
         and searches for a method that has a matching id
@@ -41,15 +50,17 @@ class Inventories(Base):
                 if an inventory object is found,
                 the method returns that object
                 '''
-                return (200, inventory)
+                return inventory
             '''
             If nothing was found, the method returns 'None'.
             The user receives a 200 status code and a 'null',
             written in the terminal
             '''
-        return (404, f"Inventory with id {inventory_id} not found in the database")
+        raise HTTPException(status_code=404, detail=f"Inventory with id {inventory_id} not found in the database")
 
-    def get_inventories_for_item(self, item_id):
+    # Hahah vergeten welke endpoint ik nodig heb voor dit + geen fouthandling geimplementeerd
+    # Ewa ja
+    def get_inventories_for_item(self, item_id: int):
         # Skip deze fouthandling voor even want wordt toch even overgeslagen
         # This method searches for inventory objects with item_id
         found_inventories = []
@@ -63,7 +74,8 @@ class Inventories(Base):
                 # the list gets returned
         return found_inventories
 
-    def get_inventory_totals_for_item(self, item_id):
+    # Nog niet de tijd om deze methods te facen, probs morgen
+    def get_inventory_totals_for_item(self, item_id: int):
         # Skip deze ook
         '''
          A dictionary is made for the total of items in inventories
@@ -94,27 +106,30 @@ class Inventories(Base):
                 # Then the method returns the totals/result dictionary
         return inventory_totals
 
-    def add(self, inventory):
+    def add_inventory(self, inventory: Inventory):
         if not self.FoutHandling().check_add_inventory(inventory):
-            return (400, "Invalid inventory body")
+            raise HTTPException(status_code=400, detail="Invalid inventory body")
         '''
         This method adds/replaces the value of the 'created_at' and
         "updated_at" keys with the current date and time.
         '''
-        inventory["created_at"] = self.get_timestamp()
-        inventory["updated_at"] = self.get_timestamp()
+        inventory_dict = inventory.model_dump()
+        inventory_dict["created_at"] = self.get_timestamp()
+        inventory_dict["updated_at"] = self.get_timestamp()
         # After doing so, it adds the passed inventory object to the database
-        self.inventory_database.append(inventory)
-        return (201, "Inventory successfully added to the database")
+        self.inventory_database.append(inventory_dict)
+        self.save()
+        return JSONResponse(status_code=201, content="Inventory successfully added to the database")
 
-    def update(self, inventory_id, inventory):
+    def update_inventory(self, inventory_id: int, inventory: Inventory):
         if not self.FoutHandling().check_put_inventory(inventory, inventory_id):
-            return (400, "Invalid id or inventory body")
+            raise HTTPException(status_code=400, detail="Invalid id or inventory body")
         '''
         The method replaces/adds the value of 'updated_at' of the
         passed inventory object with the current date and time 
         '''
-        inventory["updated_at"] = self.get_timestamp()
+        # Nakijken of dit ook echt werkt btw
+        inventory.model_dump()["updated_at"] = self.get_timestamp()
         for inventaris in self.inventory_database:
             # It loops through the database
             if inventaris["id"] == inventory_id:
@@ -123,19 +138,24 @@ class Inventories(Base):
                 it replaces all values, with the values of
                 the passed inventory object. It replaces the entire object.
                 '''
-                inventaris.update(inventory)
-                return (200, "inventory succesfully updated")
+                inventaris.update(inventory.model_dump())
+                self.save()
+                return JSONResponse(status_code=200, content="inventory succesfully updated")
 
-    def remove_inventory(self, inventory_id):
-        if not self.FoutHandling().check_remove_inventory(inventory_id):
-            return (400, "Invalid inventory id")
-        for inventory in self.inventory_database:
-            # The method loops through the database in search of an object
-            # that contains the same id as the one passed as a paramter
-            if inventory["id"] == inventory_id:
-                # Then it deletes the found inventory object
-                self.inventory_database.remove(inventory)
-                return (200, "Inventory successfully removed from the database")
+    def remove_inventory(self, inventory_id: int):
+        try:
+            if not self.FoutHandling().check_remove_inventory(inventory_id):
+                raise HTTPException(status_code=400, detail="Invalid inventory id")
+            for inventory in self.inventory_database:
+                # The method loops through the database in search of an object
+                # that contains the same id as the one passed as a paramter
+                if inventory["id"] == inventory_id:
+                    # Then it deletes the found inventory object
+                    self.inventory_database.remove(inventory)
+                    self.save()
+                    return JSONResponse(status_code=200, content="Inventory successfully removed from the database")
+        except Exception as e:
+            print(e)    
 
     def load(self, is_debug):
         if is_debug:

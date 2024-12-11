@@ -1,4 +1,5 @@
-from models.item_groups import ItemGroups
+from models.Models import ItemGroup
+
 
 '''
 {"id": 0,
@@ -9,11 +10,9 @@ from models.item_groups import ItemGroups
 
 class ItemGroupsFoutHandling:
 
-    def __init__(self):
-        self.itemgroups = ItemGroups("", True)
-        self.RequiredFields = [
-            "id", "name", "description"
-        ]
+    def itemgroups(self):
+        from services.item_groups import ItemGroups
+        return ItemGroups("./data/", False)
 
     def check_valid_id(self, itemgroup_id):
         # checks on negative ids
@@ -21,31 +20,20 @@ class ItemGroupsFoutHandling:
             return False
         return True
 
-    def check_valid_body(self, itemgroup):
-        # checks if all required fields in body
-        for field in self.RequiredFields:
-            if field not in itemgroup:
-                return False
-        return True
-
-    def check_get_itemgroup(self, itemgroup_id):
+    def check_get_itemgroup(self, itemgroup_id: int):
         return self.check_valid_id(itemgroup_id)
 
-    def check_add_itemgroup(self, itemgroup):
-        if self.check_valid_body(itemgroup):
-            # check if id not in database
-            for itemgroep in self.itemgroups.item_groups_database:
-                if itemgroep["id"] == itemgroup["id"]:
-                    return False
-            return True
-        return False
-
-    def check_put_itemgroup(self, itemgroup, itemgroup_id):
-        if self.check_valid_body(itemgroup):
-            # check if itemgroup_id is the same as itemgroup["id"]
-            if itemgroup["id"] != itemgroup_id:
+    def check_add_itemgroup(self, itemgroup: ItemGroup):
+        # check if id not in database
+        for itemgroep in self.itemgroups().item_groups_database:
+            if itemgroep["id"] == itemgroup.model_dump()["id"]:
                 return False
         return True
 
-    def check_remove_itemgroup(self, itemgroup_id):
+    def check_put_itemgroup(self, itemgroup: ItemGroup, itemgroup_id: int):
+        if itemgroup.model_dump()["id"] != itemgroup_id:
+            return False
+        return True
+
+    def check_remove_itemgroup(self, itemgroup_id: int):
         return self.check_valid_id(itemgroup_id)
