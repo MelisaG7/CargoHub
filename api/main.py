@@ -5,6 +5,7 @@ import json
 from providers import auth_provider
 from providers import data_provider
 from handlers import get_requests
+from handlers import delete_requests
 from processors import notification_processor
 
 
@@ -377,101 +378,37 @@ class ApiRequestHandler(http.server.BaseHTTPRequestHandler):
                 self.send_response(500)
                 self.end_headers()
 
-    def handle_delete_version_1(self, path, user):
-        if not auth_provider.has_access(user, path, "delete"):
-            self.send_response(403)
-            self.end_headers()
-            return
-        if path[0] == "warehouses":
-            warehouse_id = int(path[1])
-            data_provider.fetch_warehouse_pool().remove_warehouse(warehouse_id)
-            data_provider.fetch_warehouse_pool().save()
-            self.send_response(200)
-            self.end_headers()
-        elif path[0] == "locations":
-            location_id = int(path[1])
-            data_provider.fetch_location_pool().remove_location(location_id)
-            data_provider.fetch_location_pool().save()
-            self.send_response(200)
-            self.end_headers()
-        elif path[0] == "transfers":
-            transfer_id = int(path[1])
-            data_provider.fetch_transfer_pool().remove_transfer(transfer_id)
-            data_provider.fetch_transfer_pool().save()
-            self.send_response(200)
-            self.end_headers()
-        elif path[0] == "items":
-            item_id = path[1]
-            data_provider.fetch_item_pool().remove_item(item_id)
-            data_provider.fetch_item_pool().save()
-            self.send_response(200)
-            self.end_headers()
-        elif path[0] == "item_lines":
-            item_line_id = int(path[1])
-            data_provider.fetch_item_line_pool().remove_item_line(item_line_id)
-            data_provider.fetch_item_line_pool().save()
-            self.send_response(200)
-            self.end_headers()
-        elif path[0] == "item_groups":
-            item_group_id = int(path[1])
-            data_provider.fetch_item_group_pool().remove_item_group(item_group_id)
-            data_provider.fetch_item_group_pool().save()
-            self.send_response(200)
-            self.end_headers()
-        elif path[0] == "item_types":
-            item_type_id = int(path[1])
-            data_provider.fetch_item_type_pool().remove_item_type(item_type_id)
-            data_provider.fetch_item_type_pool().save()
-            self.send_response(200)
-            self.end_headers()
-        elif path[0] == "inventories":
-            inventory_id = int(path[1])
-            data_provider.fetch_inventory_pool().remove_inventory(inventory_id)
-            data_provider.fetch_inventory_pool().save()
-            self.send_response(200)
-            self.end_headers()
-        elif path[0] == "suppliers":
-            supplier_id = int(path[1])
-            data_provider.fetch_supplier_pool().remove_supplier(supplier_id)
-            data_provider.fetch_supplier_pool().save()
-            self.send_response(200)
-            self.end_headers()
-        elif path[0] == "orders":
-            order_id = int(path[1])
-            data_provider.fetch_order_pool().remove_order(order_id)
-            data_provider.fetch_order_pool().save()
-            self.send_response(200)
-            self.end_headers()
-        elif path[0] == "clients":
-            client_id = int(path[1])
-            data_provider.fetch_client_pool().remove_client(client_id)
-            data_provider.fetch_client_pool().save()
-            self.send_response(200)
-            self.end_headers()
-        elif path[0] == "shipments":
-            shipment_id = int(path[1])
-            data_provider.fetch_shipment_pool().remove_shipment(shipment_id)
-            data_provider.fetch_shipment_pool().save()
-            self.send_response(200)
-            self.end_headers()
-        else:
-            self.send_response(404)
-            self.end_headers()
-
     def do_DELETE(self):
+        # Extract the API key from headers and validate the user
         api_key = self.headers.get("API_KEY")
         user = auth_provider.get_user(api_key)
-        if user == None:
-            self.send_response(401)
+
+        if user is None:
+            self.send_response(401)  # Unauthorized
             self.end_headers()
-        else:
-            try:
-                path = self.path.split("/")
-                if len(path) > 3 and path[1] == "api" and path[2] == "v1":
-                    self.handle_delete_version_1(path[3:], user)
-            except Exception:
-                self.send_response(500)
+            return
+        # Using a try - except block to catch any problems beforehand
+        try:
+            # Parse the request path
+            path = self.path.split("/")
+            if len(path) > 3 and path[1] == "api" and path[2] == "v1":
+                resource_path = path[3:]  # Strip '/api/v1/' prefix
+
+                # Check user permissions
+                if not auth_provider.has_access(user, resource_path, "delete"):
+                    self.send_response(403)  # Forbidden
+                    self.end_headers()
+                    return
+
+                # Handle the delete operation
+                delete_requests.delete(self, resource_path)
+            else:
+                self.send_response(404)  # Not Found
                 self.end_headers()
+        except Exception as e:
+            self.send_response(500)  # Internal Server Error
+            self.end_headers()
+            print(f"Error processing DELETE request: {e}")
 
 
 if __name__ == "__main__":
