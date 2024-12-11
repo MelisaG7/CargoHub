@@ -1,7 +1,12 @@
 import json
 
+from models.Models import Shipment
+
 from services.base import Base
 # from providers import data_provider
+
+from fastapi import APIRouter, HTTPException
+
 
 SHIPMENTS = []
 
@@ -20,6 +25,18 @@ class Shipments(Base):
         """
         self.data_path = root_path + "shipments.json"
         self.load(is_debug)
+
+
+        self.router = APIRouter()
+
+        self.router.add_api_route("/shipments/", self.get_shipments, methods=["GET"])
+        self.router.add_api_route("/shipments/{shipment_id}", self.get_shipment, methods=["GET"])
+        self.router.add_api_route("/shipments/{shipment_id}", self.get_items_in_shipment, methods=["GET"])
+        self.router.add_api_route("/shipments/", self.add, methods=["POST"])
+        self.router.add_api_route("/shipments/{shipment_id}", self.update_shipment, methods=["PUT"])
+        self.router.add_api_route("/shipments/{shipment_id}", self.update_items_in_shipment, methods=["PUT"])
+        self.router.add_api_route("/shipments/{shipment_id}", self.remove_shipment, methods=["DELETE"])
+
     
     def DataProvider():
         from providers import data_provider

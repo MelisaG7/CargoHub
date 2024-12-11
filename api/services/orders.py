@@ -1,7 +1,12 @@
 import json
 
+from models.Models import Order
+
 from services.base import Base
 # from providers import data_provider
+
+from fastapi import APIRouter, HTTPException
+
 
 ORDERS = []
 
@@ -16,6 +21,21 @@ class Orders(Base):
         """
         self.data_path = root_path + "orders.json"
         self.load(is_debug)
+
+        self.router = APIRouter()
+
+
+        self.router.add_api_route("/orders/", self.get_orders, methods=["GET"])
+        self.router.add_api_route("/orders/{order_id}", self.get_order, methods=["GET"])
+        self.router.add_api_route("/orders/{order_id}", self.get_items_in_order, methods=["GET"])
+        self.router.add_api_route("/orders/{shipment_id}", self.get_orders_in_shipment, methods=["GET"])
+        self.router.add_api_route("/orders/{client_id}", self.get_orders_for_client, methods=["GET"])
+        self.router.add_api_route("/orders/", self.add, methods=["POST"])
+        self.router.add_api_route("/orders/{order_id}", self.update_order, methods=["PUT"])
+        self.router.add_api_route("/orders/{order_id}", self.update_items_in_order, methods=["PUT"])
+        self.router.add_api_route("/orders/{order_id}", self.update_orders_in_shipment, methods=["PUT"])
+        self.router.add_api_route("/orders/{shipment_id}", self.remove_order, methods=["DELETE"])
+
 
     def DataProvider():
         from providers import data_provider

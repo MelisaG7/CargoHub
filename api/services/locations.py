@@ -1,6 +1,10 @@
 import json
+from models.Models import Location
 
 from services.base import Base
+
+from fastapi import APIRouter, HTTPException
+
 
 LOCATIONS = []
 
@@ -15,6 +19,17 @@ class Locations(Base):
         """
         self.data_path = root_path + "locations.json"
         self.load(is_debug)
+
+        self.router = APIRouter()
+
+        self.router.add_api_route("/locations/", self.get_locations, methods=["GET"])
+        self.router.add_api_route("/locations/{location_id}", self.get_location, methods=["GET"])
+        self.router.add_api_route("/locations/{warehouse_id}", self.get_locations_in_warehouse, methods=["GET"])
+        self.router.add_api_route("/locations/", self.add, methods=["POST"])
+        self.router.add_api_route("/locations/{location_id}", self.update_location, methods=["PUT"])
+        self.router.add_api_route("/locations/{location_id}", self.remove_location, methods=["DELETE"])
+
+
 
     def get_locations(self):
         """Haalt alle locaties op uit de data.
