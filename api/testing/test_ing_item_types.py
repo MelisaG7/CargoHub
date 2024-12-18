@@ -66,7 +66,7 @@ def test_update_item_types():
     # return error forbidden
     assert response_user.status_code == 403
 
-def test_delete_item_types_admin():
+def test_delete_item_types():
     response = httpx.delete(f"{BASE_URL}/item_types/6", headers=admin_headers)
     assert response.status_code == 200
     
