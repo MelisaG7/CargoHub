@@ -22,7 +22,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8
+        pip install flake8 fastapi uvicorn
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint with flake8
       run: |
@@ -43,17 +43,14 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest pytest-cov
+        pip install pytest pytest-cov fastapi uvicorn
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Start API server
       run: |
-        python api/main.py &  # Adjust the path to your server script
-        sleep 5  # Allow time for the server to start
+        python api/main.py &  
+        sleep 5  
     - name: Test with pytest
       run: |
-        # since there is no need to run the tests thrice, the first 2x are commented out
-        # pytest
-        # pytest --cov --cov-report term --cov-report xml:coverage.xml
         coverage run -m pytest
     - name: Run code coverage
       if: always()
@@ -72,3 +69,22 @@ jobs:
         name: coverage-report
         path: coverage.xml
       if: ${{ failure() }}
+
+  Deployment:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name : create image if needed and start containers in Docker
+        # env:
+        #     API_KEY_ADMIN: ${{ secrets.API_KEY_ADMIN }}
+            # USE os.getenv("API_KEY_ADMIN") in the auth provider
+        run: |
+          docker-compose up --build
+
+
