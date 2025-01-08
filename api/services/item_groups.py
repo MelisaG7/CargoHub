@@ -56,7 +56,7 @@ class ItemGroups(Base):
         raise HTTPException(status_code=404, detail=f"Itemgroup with id: {item_group_id} not found.")
 
     def add_item_group(self, item_group: ItemGroup):
-        if not self.FoutHandling().check_add_itemgroup(item_group):
+        if not self.FoutHandling().check_add_itemgroup(item_group, self):
             raise HTTPException(status_code=400, detail="Invalid item group body.")
         '''
         This method adds/replaces the values of 'created_at' and

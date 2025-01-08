@@ -27,6 +27,8 @@ class Inventories(Base):
         self.router.add_api_route("/inventories", self.add_inventory, methods=["POST"])
         self.router.add_api_route("/inventories/{inventory_id}", self.update_inventory, methods=["PUT"])
         self.router.add_api_route("/inventories/{inventory_id}", self.remove_inventory, methods=["DELETE"])
+        self.router.add_api_route("/items/{item_id}/inventory", self.get_inventories_for_item, methods=["GET"])
+        self.router.add_api_route("/items/{item_id}/inventory/totals", self.get_inventory_totals_for_item, methods=["GET"])
 
     @staticmethod
     def FoutHandling():
@@ -39,7 +41,8 @@ class Inventories(Base):
 
     def get_inventory(self, inventory_id: int):
         if not self.FoutHandling().check_get_inventory(inventory_id):
-            raise HTTPException(status_code=400, detail=f"Invalid id: {inventory_id}")
+            raise HTTPException(status_code=400,
+                                detail=f"Invalid id: {inventory_id}")
         '''
         This method receives an inventory_id
         and searches for a method that has a matching id
@@ -107,7 +110,7 @@ class Inventories(Base):
         return inventory_totals
 
     def add_inventory(self, inventory: Inventory):
-        if not self.FoutHandling().check_add_inventory(inventory):
+        if not self.FoutHandling().check_add_inventory(inventory, self):
             raise HTTPException(status_code=400, detail="Invalid inventory body")
         '''
         This method adds/replaces the value of the 'created_at' and
@@ -143,7 +146,6 @@ class Inventories(Base):
                 return JSONResponse(status_code=200, content="inventory succesfully updated")
 
     def remove_inventory(self, inventory_id: int):
-        try:
             if not self.FoutHandling().check_remove_inventory(inventory_id):
                 raise HTTPException(status_code=400, detail="Invalid inventory id")
             for inventory in self.inventory_database:
@@ -154,8 +156,7 @@ class Inventories(Base):
                     self.inventory_database.remove(inventory)
                     self.save()
                     return JSONResponse(status_code=200, content="Inventory successfully removed from the database")
-        except Exception as e:
-            print(e)    
+            raise HTTPException(status_code=404, detail=f"Inventory with id {inventory_id} not found in the database")
 
     def load(self, is_debug):
         if is_debug:

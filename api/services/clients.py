@@ -21,6 +21,7 @@ Changed variables 'x' and 'i' to 'client'
 class Clients(Base):
     def __init__(self, root_path, is_debug=False):
         self.client_database_path = root_path + "clients.json"
+        self.is_debug = is_debug
         self.load(is_debug)
         # Voeh je router toe in de init.
         self.router = APIRouter()
@@ -68,7 +69,7 @@ class Clients(Base):
                             detail=f"Client with id {client_id} was not found")
 
     def add_client(self, client: Client):
-        if not self.FoutHandling().check_add_client(client):
+        if not self.FoutHandling().check_add_client(client, self):
             raise HTTPException(status_code=400, detail="Invalid client body")
         # Adds a client object from the database.
         # This method receives a client object as a parameter
@@ -144,6 +145,8 @@ class Clients(Base):
                 self.save()
                 return {"message":
                         "client successfully removed from the database."}
+        raise HTTPException(status_code=404,
+                            detail=f"Client with id {client_id} was not found")
 
     def load(self, is_debug):
         '''

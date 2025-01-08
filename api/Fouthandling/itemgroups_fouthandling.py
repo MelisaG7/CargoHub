@@ -23,9 +23,9 @@ class ItemGroupsFoutHandling:
     def check_get_itemgroup(self, itemgroup_id: int):
         return self.check_valid_id(itemgroup_id)
 
-    def check_add_itemgroup(self, itemgroup: ItemGroup):
+    def check_add_itemgroup(self, itemgroup: ItemGroup, itemgroups):
         # check if id not in database
-        for itemgroep in self.itemgroups().item_groups_database:
+        for itemgroep in itemgroups.item_groups_database:
             if itemgroep["id"] == itemgroup.model_dump()["id"]:
                 return False
         return True

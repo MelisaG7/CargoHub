@@ -21,9 +21,8 @@ class ClientsFoutHandling:
             "contact_email"
         ]
 
-    def clients(self):
-        from services.clients import Clients
-        return Clients("./data/", False)
+    def clients(self, client):
+        return client
 
     def check_valid_id(self, client_id):
         if client_id < 0:
@@ -34,10 +33,10 @@ class ClientsFoutHandling:
         # check on negatieve IDs
         return self.check_valid_id(client_id)
 
-    def check_add_client(self, client: Client):
+    def check_add_client(self, client: Client, clients):
         # Je hoeft niet meer te checken of de body klopt.
         # Dat doet fastAPI zelf al.
-        for klant in self.clients().client_database:
+        for klant in self.clients(clients).client_database:
             # BELANGRIJK! Bij het loopen moet je de client object,
             # eerst omzetten in een dictionary door 'model_dump()' te
             # gebruiken.

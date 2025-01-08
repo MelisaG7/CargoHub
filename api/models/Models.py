@@ -1,7 +1,5 @@
 from pydantic import BaseModel
 
-# Ik maak models, zodat de json deze automatisch kan nankijken
-
 
 class Client(BaseModel):
     id: int

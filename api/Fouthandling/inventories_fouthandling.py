@@ -5,19 +5,21 @@ class InventoriesFoutHandling:
 
     def __inti__(self):
         self.somthing = "nothing in here idk"
-    
+
     @staticmethod
     def inventories():
         from services.inventories import Inventories
         return Inventories("./data/", False)
 
-    def check_valid_id(self, inventory_id):
+    def check_valid_id(self, inventory_id: int):
         # checks on negatieve ids
         if inventory_id < 0:
             return False
         return True
 
-    def check_get_inventory(self, inventory_id):
+    def check_get_inventory(self, inventory_id: int):
+        if not isinstance(inventory_id, int):
+            return False
         # Checks on negatieve ids
         return self.check_valid_id(inventory_id)
 
@@ -36,9 +38,9 @@ class InventoriesFoutHandling:
         # Anything else maybe too?
         return self.check_get_inventory_for_item(item_id)
 
-    def check_add_inventory(self, inventory: Inventory):
+    def check_add_inventory(self, inventory: Inventory, inventories):
         # checks if id not in database
-        for inventaris in self.inventories().inventory_database:
+        for inventaris in inventories.inventory_database:
             if inventaris["id"] == inventory.model_dump()["id"]:
                 return False
         return True

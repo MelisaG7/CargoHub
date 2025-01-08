@@ -104,12 +104,12 @@ class TestEndpointsItemGroups:
         # Klopt niet
 
     def test_remove_item_group(self):
-        # response = httpx.post(f"{BASE_URL}", json=self.DummyItem_group, headers=self.headerlist[0])
-        response = httpx.delete(f"{BASE_URL}/{31}", headers=self.headerlist[0])
+        response = httpx.post(f"{BASE_URL}", json=self.DummyItem_group, headers=self.headerlist[0])
+        response = httpx.delete(f"{BASE_URL}/{300}", headers=self.headerlist[0])
         assert response.status_code == 200
         # 500 once again
 
-        response = httpx.get(f"{BASE_URL}/{31}", headers=self.headerlist[0])
+        response = httpx.get(f"{BASE_URL}/{300}", headers=self.headerlist[0])
         assert response.status_code == 404
         # 500..
 

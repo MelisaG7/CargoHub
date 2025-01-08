@@ -1,11 +1,12 @@
 # import fast api and use it to create a new app:
-from fastapi import FastAPI
 # from models import Models
 import services
 from providers.auth_provider import MiddleWare
 from starlette.middleware.base import BaseHTTPMiddleware
-# Providers wordt nu (nog) niet gebruikt voor ease.
 import uvicorn
+from fastapi import FastAPI
+# Providers wordt nu (nog) niet gebruikt voor ease.
+
 
 import services.clients
 import services.inventories
