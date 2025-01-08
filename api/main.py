@@ -4,7 +4,9 @@ from services.item_lines import ItemLines
 from services.item_types import ItemTypes
 from services.items import Items
 from services.clients import Clients
-from services.warehouses import *
+from services.item_groups import ItemGroups
+from services.inventories import Inventories
+from services.warehouses import Warehouses
 from services.transfers import Transfers
 from services.suppliers import Suppliers
 from providers.auth_provider import MiddleWare
@@ -29,7 +31,9 @@ app.add_middleware(BaseHTTPMiddleware, dispatch=MiddleWare().api_key_validator)
 app.include_router(ItemLines("./data/", False).router, prefix="/api/v1")
 app.include_router(ItemTypes("./data/", False).router, prefix="/api/v1")
 app.include_router(Items("./data/", False).router, prefix="/api/v1")
-app.include_router(Clients("./data/", False).router)
+app.include_router(Clients("./data/", False).router, prefix="/api/v1")
+app.include_router(Inventories("./data/", False).router, prefix="/api/v1")
+app.include_router(ItemGroups("./data/", False).router, prefix="/api/v1")
 app.include_router(Warehouses("./data/", False).router, prefix="/api/v1")
 app.include_router(Transfers("./data/", False).router, prefix="/api/v1")
 app.include_router(Suppliers("./data/", False).router, prefix="/api/v1")
