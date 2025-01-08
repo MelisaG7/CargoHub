@@ -18,7 +18,7 @@ item_lines = ItemLines(".data/", True)
 
 def test_get_item_lines():
     """Test retrieving all item lines from the data."""
-    item_lines.data = DUMMY_DATA
+    item_lines.data = DUMMY_DATA.copy()
     data = item_lines.get_item_lines()
     assert data == DUMMY_DATA
 
@@ -26,7 +26,7 @@ def test_get_item_lines():
 def test_get_item_line():
     """Test retrieving a specific item line by ID."""
     # item_lines = ItemLines(".data/", True)
-    item_lines.data = DUMMY_DATA
+    item_lines.data = DUMMY_DATA.copy()
     assert item_lines.get_item_line(2) == DUMMY_DATA[1]
     assert item_lines.get_item_line(999) is None  # Test for non-existing ID
 
@@ -34,7 +34,7 @@ def test_get_item_line():
 def test_add_item_line():
     """Test adding a new item line."""
     # item_lines = ItemLines(".data/", True)
-    item_lines.data = DUMMY_DATA
+    item_lines.data = DUMMY_DATA.copy()
     new_item = {"id": 4, "name": "Electronics", "description": ""}
     item_lines.add_item_line(new_item)
 
@@ -50,7 +50,7 @@ def test_add_item_line():
 def test_update_item_line():
     """Test updating an existing item line."""
     # item_lines = ItemLines(".data/", True)
-    item_lines.data = DUMMY_DATA
+    item_lines.data = DUMMY_DATA.copy()
     updated_item = {"id": 2, "name": "Updated Office Supplies",
                     "description": "Updated description"}
     item_lines.update_item_line(2, updated_item)
@@ -65,11 +65,12 @@ def test_update_item_line():
 def test_remove_item_line():
     """Test removing an existing item line."""
     # item_lines = ItemLines(".data/", True)
-    item_lines.data = DUMMY_DATA
+    item_lines.data = DUMMY_DATA.copy()
+    amount = len(item_lines.data)
 
     item_lines.remove_item_line(2)
-
+    updated_amount = len(item_lines.data)
     # Check if the item was removed
     data = item_lines.get_item_lines()
-    assert len(data) == 2
+    assert updated_amount == amount - 1
     assert all(item["id"] != 2 for item in data)

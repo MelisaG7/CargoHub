@@ -17,21 +17,21 @@ items = Items(".data/", True)
 
 def test_get_items():
     """Test retrieving all items from the data."""
-    items.data = DUMMY_DATA
+    items.data = DUMMY_DATA.copy()
     data = items.get_items()
     assert data == DUMMY_DATA
 
 
 def test_get_item():
     """Test retrieving a specific item by UID."""
-    items.data = DUMMY_DATA
+    items.data = DUMMY_DATA.copy()
     assert items.get_item("P000004") == DUMMY_DATA[1]
     assert items.get_item("P999999") is None  # Test for non-existing UID
 
 
 def test_get_items_for_item_line():
     """Test retrieving items for a specific item line."""
-    items.data = DUMMY_DATA
+    items.data = DUMMY_DATA.copy()
     result = items.get_items_for_item_line(58)
     assert len(result) == 1
     assert result[0]["uid"] == "P000004"
@@ -39,7 +39,7 @@ def test_get_items_for_item_line():
 
 def test_get_items_for_item_group():
     """Test retrieving items for a specific item group."""
-    items.data = DUMMY_DATA
+    items.data = DUMMY_DATA.copy()
     result = items.get_items_for_item_group(88)
     assert len(result) == 1
     assert result[0]["uid"] == "P000003"
@@ -47,7 +47,7 @@ def test_get_items_for_item_group():
 
 def test_get_items_for_item_type():
     """Test retrieving items for a specific item type."""
-    items.data = DUMMY_DATA
+    items.data = DUMMY_DATA.copy()
     result = items.get_items_for_item_type(28)
     assert len(result) == 1
     assert result[0]["uid"] == "P000005"
@@ -55,7 +55,7 @@ def test_get_items_for_item_type():
 
 def test_get_items_for_supplier():
     """Test retrieving items for a specific supplier."""
-    items.data = DUMMY_DATA
+    items.data = DUMMY_DATA.copy()
     result = items.get_items_for_supplier(35)
     assert len(result) == 1
     assert result[0]["uid"] == "P000005"
@@ -63,7 +63,7 @@ def test_get_items_for_supplier():
 
 def test_add_item():
     """Test adding a new item."""
-    items.data = DUMMY_DATA
+    items.data = DUMMY_DATA.copy()
     new_item = {"uid": "P000006", "code": "newItem123", "description": "Newly added item", "short_description": "new", "upc_code": "1234567890123", "model_number": "NM-9876", "commodity_code": "NC-123", "item_line": 60,
                 "item_group": 30, "item_type": 45, "unit_purchase_quantity": 12, "unit_order_quantity": 10, "pack_order_quantity": 5, "supplier_id": 10, "supplier_code": "SUP567", "supplier_part_number": "SP-001"}
 
@@ -80,7 +80,7 @@ def test_add_item():
 
 def test_update_item():
     """Test updating an existing item."""
-    items.data = DUMMY_DATA
+    items.data = DUMMY_DATA.copy()
     updated_item = {"uid": "P000004", "code": "updatedCode", "description": "Updated description", "short_description": "updated", "upc_code": "9999999999999", "model_number": "UP-9999", "commodity_code": "UP-123",
                     "item_line": 58, "item_group": 23, "item_type": 40, "unit_purchase_quantity": 50, "unit_order_quantity": 25, "pack_order_quantity": 20, "supplier_id": 34, "supplier_code": "SUP140", "supplier_part_number": "T-210-I4M"}
 
@@ -95,11 +95,13 @@ def test_update_item():
 
 def test_remove_item():
     """Test removing an existing item."""
-    items.data = DUMMY_DATA
+    items.data = DUMMY_DATA.copy()
+    amount = len(items.data)
 
     items.remove_item("P000003")
 
     # Check if the item was removed
     data = items.get_items()
-    assert len(data) == 2
+    updated_amount = len(items.data)
+    assert updated_amount == amount - 1
     assert all(item["uid"] != "P000003" for item in data)
