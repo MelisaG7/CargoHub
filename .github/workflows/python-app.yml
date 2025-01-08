@@ -101,6 +101,7 @@ jobs:
         run: |
           docker-compose up -d --build
 
+          
     #commented out to test the deployment
     # environment:
     #   name: ${{ github.ref_name == 'main' && 'Production' || github.ref_name == 'staging' && 'Staging' || 'Development' }}
