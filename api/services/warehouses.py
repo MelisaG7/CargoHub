@@ -1,7 +1,11 @@
 import json
-from models.base import Base
+from services.base import Base
+from fastapi import APIRouter, HTTPException
+from models.Models import Warehouse
+from fastapi.responses import JSONResponse
 
 WAREHOUSES = []
+
 
 class Warehouses(Base):
     def __init__(self, root_path, is_debug=False):
@@ -13,38 +17,49 @@ class Warehouses(Base):
         """
         self.data_path = root_path + "warehouses.json"
         self.load(is_debug)
+        self.router = APIRouter()
+        self.router.add_api_route(
+            "/warehouses", self.get_warehouses, methods=["GET"])
+        self.router.add_api_route(
+            "/warehouses/{warehouse_id}", self.get_warehouse, methods=["GET"])
+        self.router.add_api_route(
+            "/warehouses", self.add_warehouse, methods=["POST"])
+        self.router.add_api_route(
+            "/warehouses/{warehouse_id}", self.update_warehouse, methods=["PUT"])
+        self.router.add_api_route(
+            "/warehouses/{warehouse_id}", self.remove_warehouse, methods=["DELETE"])
 
     def get_warehouses(self):
-        """
-        Retrieve all warehouse objects from the JSON file.
-
-        :return: A list of all warehouse objects.
-        """
+        # Retrieve all warehouse objects from the JSON file.
+        # self.data is a list of all warehouse objects.
         return self.data
 
-    def get_warehouse(self, warehouse_id):
-        """
-        Retrieve a warehouse object based on its ID.
+    def get_warehouse(self, warehouse_id: int):
+        # Retrieve a specific warehouse object based on its ID.
+        # Warehouse_id: The ID of the warehouse to retrieve.
+        # Returns the warehouse if found, else it returns None.
 
-        :param warehouse_id: The ID of the warehouse to retrieve.
-        :return: A dictionary representing the warehouse if found, otherwise None.
-        """
         for warehouse in self.data:
             if warehouse["id"] == warehouse_id:
                 return warehouse
         return None
 
-    def add_warehouse(self, warehouse):
+    def add_warehouse(self, warehouse: Warehouse):
         """
         Add a new warehouse object to the JSON data, setting timestamps for creation and update.
 
         :param warehouse: The dictionary representing the new warehouse to add.
         """
-        warehouse["created_at"] = self.get_timestamp()
-        warehouse["updated_at"] = self.get_timestamp()
-        self.data.append(warehouse)
+        warehousedict = warehouse.model_dump()
+        warehousedict["created_at"] = self.get_timestamp()
+        warehousedict["updated_at"] = self.get_timestamp()
+        self.data.append(warehousedict)
+        try:
+            return JSONResponse(content="Warehouse has been added", status_code=201)
+        except Exception as e:
+            print(e)
 
-    def update_warehouse(self, warehouse_id, warehouse):
+    def update_warehouse(self, warehouse_id: int, warehouse: Warehouse):
         """
         Update an existing warehouse based on its ID, replacing it with new data.
 
@@ -52,25 +67,28 @@ class Warehouses(Base):
         :param warehouse: The new data to replace the existing warehouse.
         :return: True if the warehouse was successfully updated; otherwise, False.
         """
-        warehouse["updated_at"] = self.get_timestamp()
-        for i in range(len(self.data)):
-            if self.data[i]["id"] == warehouse_id:
-                self.data[i] = warehouse
-                return True
-        return False
+        warehousedict = warehouse.model_dump()
+        warehousedict["updated_at"] = self.get_timestamp()
+        for warehouses in self.data:
+            try:
+                if warehouses["id"] == warehouse_id:
+                    warehouses.update(warehousedict)
+            except Exception as e:
+                print(e)
 
-    def remove_warehouse(self, warehouse_id):
+    def remove_warehouse(self, warehouse_id: int):
         """
         Delete a warehouse based on its ID.
 
         :param warehouse_id: The ID of the warehouse to remove.
         :return: True if the warehouse was successfully removed; otherwise, False.
         """
-        for warehouse in self.data:
-            if warehouse["id"] == warehouse_id:
-                self.data.remove(warehouse)
-                return True
-        return False
+        try:
+            for warehouse in self.data:
+                if warehouse["id"] == warehouse_id:
+                    self.data.remove(warehouse)
+        except Exception as e:
+            print(e)
 
     def load(self, is_debug):
         """

@@ -6,7 +6,6 @@ from models.Models import ItemLine
 from fastapi.responses import JSONResponse
 
 
-
 class ItemLines(Base):
     def __init__(self, root_path, is_debug=False):
         """
@@ -25,12 +24,16 @@ class ItemLines(Base):
 
         self.router = APIRouter()
 
-        self.router.add_api_route("/item_lines", self.get_item_lines, methods=["GET"])
-        self.router.add_api_route("/item_lines/{item_line_id}", self.get_item_line, methods=["GET"])
-        self.router.add_api_route("/item_lines", self.add_item_line, methods=["POST"])
-        self.router.add_api_route("/item_lines/{item_line_id}", self.update_item_line, methods=["PUT"])
-        self.router.add_api_route("/item_lines/{item_line_id}", self.remove_item_line, methods=["DELETE"])
-
+        self.router.add_api_route(
+            "/item_lines", self.get_item_lines, methods=["GET"])
+        self.router.add_api_route(
+            "/item_lines/{item_line_id}", self.get_item_line, methods=["GET"])
+        self.router.add_api_route(
+            "/item_lines", self.add_item_line, methods=["POST"])
+        self.router.add_api_route(
+            "/item_lines/{item_line_id}", self.update_item_line, methods=["PUT"])
+        self.router.add_api_route(
+            "/item_lines/{item_line_id}", self.remove_item_line, methods=["DELETE"])
 
     def check_valid_id(self, item_line_id: int):
         """
@@ -40,11 +43,12 @@ class ItemLines(Base):
         :return: True if the ID is valid, False otherwise.
         """
         return item_line_id >= 0
-    
+
     def validate_item_line(self, item_line: dict):
         for field in self.required_fields:
             if field not in item_line:
-                raise HTTPException(status_code=400, detail=f"Missing required field: {field}")
+                raise HTTPException(
+                    status_code=400, detail=f"Missing required field: {field}")
         return True
 
     def get_item_lines(self):
@@ -55,7 +59,7 @@ class ItemLines(Base):
         """
         return self.data
 
-    def get_item_line(self, item_line_id:int):
+    def get_item_line(self, item_line_id: int):
         try:
             """
             Retrieve a specific item line based on its ID.
@@ -93,32 +97,34 @@ class ItemLines(Base):
 
         item_line_dict = item_line.model_dump()
 
-        self.validate_item_line(item_line_dict) # checks whether item_line has the correct body
+        # checks whether item_line has the correct body
+        self.validate_item_line(item_line_dict)
         if not self.is_debug:
             self.load(self.is_debug)
 
         # Loops through the existing to data if there already is an item line with the same id
         for line in self.data:
             if line["id"] == item_line_dict["id"]:
-                raise HTTPException(status_code=400, detail="There already is a itemline with the same id")
+                raise HTTPException(
+                    status_code=400, detail="There already is a itemline with the same id")
 
         '''
         # The server adds'created_at' and 'updated_at',
         # with the current date and time.
         '''
         itemline_data = item_line_dict
-        
+
         itemline_data["created_at"] = self.get_timestamp()
         itemline_data["updated_at"] = self.get_timestamp()
-        
-        self.data.append(itemline_data) # The system adds the clientobject to the database
-        if not self.is_debug: # checks whether the unittests are ran
+
+        # The system adds the clientobject to the database
+        self.data.append(itemline_data)
+        if not self.is_debug:  # checks whether the unittests are ran
             self.save()
         # changes the status code to 201 Created instead of 200 OK with a message
-        return JSONResponse(content="Itemline was succesfully added to the database", status_code=201) 
-        
+        return JSONResponse(content="Itemline was succesfully added to the database", status_code=201)
 
-    def update_item_line(self, item_line_id:int, new_item_line:ItemLine):
+    def update_item_line(self, item_line_id: int, new_item_line: ItemLine):
         """
         Update an existing item line with new data, based on its ID.
 
@@ -135,12 +141,11 @@ class ItemLines(Base):
             raise HTTPException(status_code=400,
                                 detail="Invalid itemline id or can't find the itemline to be updated")
 
-        
         # In the JSON body there is an itemline object sent,
         # with the values that the user desires to change in the old object
         new_itemline_object = new_item_line.model_dump()
         new_itemline_object["updated_at"] = self.get_timestamp()
-        
+
         # After updating, the system changes the updating date and time,
         # to the date and time when the updating took place.
         for old_itemline in self.data:
@@ -158,7 +163,7 @@ class ItemLines(Base):
                 '''
                 return {"message": "Itemline successfully updated."}
 
-    def remove_item_line(self, item_line_id:int):
+    def remove_item_line(self, item_line_id: int):
         """
         Remove an item line from the JSON data based on its ID.
 
@@ -168,7 +173,7 @@ class ItemLines(Base):
         if not self.is_debug:
             self.load(self.is_debug)
         if self.get_item_line(item_line_id) is None or item_line_id < 0:
-            raise HTTPException(status_code=400,                              
+            raise HTTPException(status_code=400,
                                 detail=f"Invalid itemline id: {item_line_id} or item line doesnt exist")
         '''
         The method receives a item_line_id of the client object,
@@ -214,4 +219,5 @@ class ItemLines(Base):
             with open(self.data_path, "w") as file:
                 json.dump(self.data, file, indent=4)
         except (FileNotFoundError, json.JSONDecodeError):
-            raise HTTPException(f"{self.data_path} not found or could not be loaded.")            
+            raise HTTPException(
+                f"{self.data_path} not found or could not be loaded.")

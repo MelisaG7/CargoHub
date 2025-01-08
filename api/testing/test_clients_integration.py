@@ -64,45 +64,53 @@ class TestEndpointsClients:
         self.restore_original_data()
 
     def test_get_clients(self):
-        response = httpx.get(f"{BASE_URL}/api/v1/clients", headers=self.headerlist[0])
+        response = httpx.get(f"{BASE_URL}/api/v1/clients",
+                             headers=self.headerlist[0])
         assert response.status_code == 200
-        response = httpx.get(f"{BASE_URL}/api/v1/clients", headers=self.headerlist[1])
+        response = httpx.get(f"{BASE_URL}/api/v1/clients",
+                             headers=self.headerlist[1])
         assert response.status_code == 200
         # Dit werkt volledig
 
     def test_get_client(self):
         # Test for existing IDs
         for Id in self.ids:
-            response = httpx.get(f"{BASE_URL}/api/v1/clients/{Id}", headers=self.headerlist[0])
+            response = httpx.get(
+                f"{BASE_URL}/api/v1/clients/{Id}", headers=self.headerlist[0])
             assert response.status_code == 200
             assert response.json()["id"] == Id
 
         # Test for non-existing IDs
         for Id in self.WrongIds:
-            response = httpx.get(f"{BASE_URL}/api/v1/clients/{Id}", headers=self.headerlist[0])
+            response = httpx.get(
+                f"{BASE_URL}/api/v1/clients/{Id}", headers=self.headerlist[0])
             assert response.status_code == 404
             # Oke dus ookal vind het geen clients, het geeft alsnog 200.
     # Deze functie werkt ook volledig
 
     def test_post_client(self):
-        response = httpx.post(f"{BASE_URL}/api/v1/clients", json=self.DummyClient, headers=self.headerlist[0])
+        response = httpx.post(f"{BASE_URL}/api/v1/clients",
+                              json=self.DummyClient, headers=self.headerlist[0])
         assert response.status_code == 201
 
         client_data = self.load_client_data(self.DummyClient["id"])
         assert client_data["name"] == self.DummyClient["name"]
         # Dit werkt
 
-        response = httpx.post(f"{BASE_URL}/api/v1/clients", json=self.DummyClient, headers=self.headerlist[1])
+        response = httpx.post(f"{BASE_URL}/api/v1/clients",
+                              json=self.DummyClient, headers=self.headerlist[1])
         assert response.status_code == 403
         # Dit werkt
 
-        response = httpx.post(f"{BASE_URL}/api/v1/clients", json=self.WrongDummyClient, headers=self.headerlist[0])
+        response = httpx.post(f"{BASE_URL}/api/v1/clients",
+                              json=self.WrongDummyClient, headers=self.headerlist[0])
         assert response.status_code == 400
         # Fout dummy wordt toch naar de database toegevoegd, ookal mist het. Dus geen fouthandling
     # Deze methode werkt ook naar behoren
 
     def test_put_client(self):
-        response = httpx.put(f"{BASE_URL}/api/v1/clients/{1}", json=self.DummyClient, headers=self.headerlist[0])
+        response = httpx.put(f"{BASE_URL}/api/v1/clients/{1}",
+                             json=self.DummyClient, headers=self.headerlist[0])
         assert response.status_code == 200
         updated_client_data = self.load_client_data(1)
         assert updated_client_data["name"] == self.DummyClient["name"]
@@ -113,14 +121,17 @@ class TestEndpointsClients:
         # In principe werkt dit ook volledig
 
     def test_remove_client(self):
-        response = httpx.delete(f"{BASE_URL}/api/v1/clients/{1}", headers=self.headerlist[0])
+        response = httpx.delete(
+            f"{BASE_URL}/api/v1/clients/{1}", headers=self.headerlist[0])
         assert response.status_code == 200
         # Ik heb even geen idee warrom de status code 500 is ipv van 200. Dit is ook zo bij Thunder
-        response = httpx.get(f"{BASE_URL}/api/v1/clients/{1}", headers=self.headerlist[0])
+        response = httpx.get(
+            f"{BASE_URL}/api/v1/clients/{1}", headers=self.headerlist[0])
         assert response.status_code == 404
         # Dit is ook 500. De server geeft normaal 200 en dan een 'null' als een object niet kan worden gevonden. Heel raar
 
-        response = httpx.delete(f"{BASE_URL}/api/v1/clients/{12}", headers=self.headerlist[1])
+        response = httpx.delete(
+            f"{BASE_URL}/api/v1/clients/{12}", headers=self.headerlist[1])
         assert response.status_code == 403
         # Oke dit werkt wel gewoon...maar dit doet niks met verwijderen daarom
 

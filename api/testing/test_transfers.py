@@ -1,5 +1,5 @@
 import json
-from models.transfers import *
+from services.transfers import *
 import pytest
 
 DUMMY_DATA = [
@@ -82,6 +82,7 @@ transfers.data = DUMMY_DATA
 
 def test_get_transfers():
     # Checking if the database has been correctly set to the dummy_data
+    transfers.data = DUMMY_DATA.copy()
     result = transfers.get_transfers()
     assert len(result) == 5
     assert result[0]["reference"] == "T"
@@ -89,6 +90,7 @@ def test_get_transfers():
 
 def test_get_transfer():
     # Checking if it returns None for a non-existing transfer
+    transfers.data = DUMMY_DATA.copy()
     result = transfers.get_transfer(10)
     assert result is None
 
@@ -99,6 +101,7 @@ def test_get_transfer():
 
 def test_get_items_in_transfer():
     # Checking if it returns None for a transfer without items
+    transfers.data = DUMMY_DATA.copy()
     result = transfers.get_items_in_transfer(4)
     assert result == []
 
@@ -111,21 +114,19 @@ def test_get_items_in_transfer():
 
 
 def test_add_transfer():
-    new_transfer = {
-        "id": 6,
-        "reference": "TR00006",
-        "transfer_from": None,
-        "transfer_to": 9252,
-        "transfer_status": "Completed",
-        "created_at": "2000-03-11T13:11:14Z",
-        "updated_at": "2000-03-12T14:11:14Z",
-        "items": [
-            {
-                "item_id": "P002084",
-                "amount": 33
-            }
+    new_transfer = Transfer(
+        id=6,
+        reference="TR00006",
+        transfer_from=9229,
+        transfer_to=9252,
+        transfer_status="Completed",
+        created_at="2000-03-11T13:11:14Z",
+        updated_at="2000-03-12T14:11:14Z",
+        items=[
+            {"item_id": "P002084", "amount": 33}
         ]
-    }
+    )
+    transfers.data = DUMMY_DATA.copy()
     transfers.add_transfer(new_transfer)
     result = transfers.get_transfer(6)
     assert result is not None
@@ -133,22 +134,21 @@ def test_add_transfer():
 
 
 def test_update_transfer():
-    updated_transfer = {
-        "id": 2,
-        "reference": "TR00002-Updated",
-        "transfer_from": 9229,
-        "transfer_to": 9284,
-        "transfer_status": "Completed",
-        "created_at": "2017-09-19T00:33:14Z",
-        # Assuming this method gets the current timestamp
-        "updated_at": transfers.get_timestamp(),
-        "items": [
-            {
-                "item_id": "P007435",
-                "amount": 25
-            }
+    updated_transfer = Transfer(
+        id=2,
+        reference="TR00002-Updated",
+        transfer_from=9229,
+        transfer_to=9284,
+        transfer_status="Completed",
+        created_at="2017-09-19T00:33:14Z",
+        # Gebruik de functie om een tijdstempel te genereren
+        updated_at=transfers.get_timestamp(),
+        items=[
+            {"item_id": "P007435", "amount": 25}
         ]
-    }
+    )
+
+    transfers.data = DUMMY_DATA.copy()
     transfers.update_transfer(2, updated_transfer)
     result = transfers.get_transfer(2)
     assert result["reference"] == "TR00002-Updated"
@@ -159,6 +159,7 @@ def test_update_transfer():
 
 def test_remove_transfer():
     # Check if transfer is correctly removed
+    transfers.data = DUMMY_DATA.copy()
     initial_count = len(transfers.data)
     transfers.remove_transfer(3)
     result = transfers.get_transfer(3)

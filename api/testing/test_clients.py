@@ -71,16 +71,16 @@ class TestClients:
         empty_client_body = {}
         # Nu moet ik dus kijken of de client_body daadwerkelijk nu in data zit
         self.clients.add_client(client_body)
-        assert self.clients.client_database[-1]["name"] == client_body["name"]
+        assert self.clients.client_database[-1] == client_body
 
         self.clients.add_client(empty_client_body)
-        assert self.clients.client_database[-1] != empty_client_body 
+        assert self.clients.client_database[-1] != empty_client_body
         # FOUT DETECTED!! Een lege body sturen werkt WEL!
 
         self.clients.add_client(wrong_client_body)
         assert self.clients.client_database[-1] != wrong_client_body
         # FOUT DETECTED!!! Client objects met missende informatie komen WEL bij alle client_database
-    
+
     def test_update_client(self):
         # The user must pass a client object with a matching ID to that of a client object in the client_databasebase,
         # in order for the system to update that client object.
@@ -122,7 +122,7 @@ class TestClients:
             "country": "United States",
             "contact_name": "Daisy Haites",
             "contact_phone": "001-888-777-666-555",
-            "contact_email": "dhaites@example.net"  
+            "contact_email": "dhaites@example.net"
         }
         Added_body2 = {
             "id": 22,

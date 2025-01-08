@@ -1,7 +1,5 @@
 from pydantic import BaseModel
 
-# Ik maak models, zodat de json deze automatisch kan nankijken
-
 
 class Client(BaseModel):
     id: int
@@ -21,7 +19,7 @@ class Client(BaseModel):
     # "city": "Pierceview",
     # "zip_code": "28301",
     # "province": "Colorado",
-    # "country": "United States", 
+    # "country": "United States",
     # "contact_name": "Bryan Clark",
     # "contact_phone": "242.732.3483x2573",
     # "contact_email": "robertcharles@example.net"
@@ -224,7 +222,9 @@ class Warehouse(BaseModel):
     contact: dict
     # {"id": 1,
     # "code": "YQZZNL56",
-    # "name": "Heemskerk cargo hub", 
+
+    # "name": "Heemskerk cargo hub",
+
     # "address": "Karlijndreef 281",
     # "zip": "4002 AS",
     # "city": "Heemskerk",
@@ -234,4 +234,5 @@ class Warehouse(BaseModel):
     # "name": "Fem Keijzer",
     # "phone": "(078) 0013363",
     # "email": "blamore@example.net"
+
     # },
