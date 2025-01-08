@@ -17,7 +17,7 @@ def test_get_items():
     response_user = httpx.get(f"{BASE_URL}/items", headers=user_headers)
     assert response_user.status_code == 200
 
-def test_get_item_by_id():
+def test_get_item_by_uid():
     response = httpx.get(f"{BASE_URL}/items/P000001", headers=admin_headers)
     assert response.json()["uid"] == "P000001"
     assert response.status_code == 200
@@ -28,42 +28,42 @@ def test_get_item_by_id():
 
 def test_get_items_for_item_line():
     item_line_id = 58
-    response = httpx.get(f"{BASE_URL}/items?item_line={item_line_id}", headers=admin_headers)
+    response = httpx.get(f"{BASE_URL}/items/item_line/{item_line_id}", headers=admin_headers)
     assert response.status_code == 200
     
     item_line_id_user = 11
-    response_user = httpx.get(f"{BASE_URL}/items?item_line={item_line_id_user}", headers=user_headers)
-    assert response_user.json()["item_line"] == 11
+    response_user = httpx.get(f"{BASE_URL}/items/item_line/{item_line_id_user}", headers=user_headers)
+    assert response_user.json()[0]["item_line"] == 11
     assert response_user.status_code == 200
 
 def test_get_items_for_item_group():
     item_group_id = 50
-    response = httpx.get(f"{BASE_URL}/items?item_group={item_group_id}", headers=admin_headers)
+    response = httpx.get(f"{BASE_URL}/items/item_group/{item_group_id}", headers=admin_headers)
     assert response.status_code == 200
 
     item_group_id_user = 73
-    response_user = httpx.get(f"{BASE_URL}/items?item_group={item_group_id_user}", headers=user_headers)
-    assert response_user.json()["item_group"] == 73
+    response_user = httpx.get(f"{BASE_URL}/items/item_group/{item_group_id_user}", headers=user_headers)
+    assert response_user.json()[0]["item_group"] == 73
     assert response_user.status_code == 200
 
 def test_get_items_for_item_type():
     item_type_id = 63
-    response = httpx.get(f"{BASE_URL}/items?item_type={item_type_id}", headers=admin_headers)
+    response = httpx.get(f"{BASE_URL}/items/item_type/{item_type_id}", headers=admin_headers)
     assert response.status_code == 200 # returns error 404
     
     item_type_id_user = 14
-    response_user = httpx.get(f"{BASE_URL}/items?item_type={item_type_id_user}", headers=user_headers)
-    assert response_user.json()["item_type"] == 14
+    response_user = httpx.get(f"{BASE_URL}/items/item_type/{item_type_id_user}", headers=user_headers)
+    assert response_user.json()[0]["item_type"] == 14
     assert response_user.status_code == 200
 
 def test_get_items_for_supplier():
     supplier_id = 69
-    response = httpx.get(f"{BASE_URL}/items?supplier_id={supplier_id}", headers=admin_headers)
+    response = httpx.get(f"{BASE_URL}/items/supplier/{supplier_id}", headers=admin_headers)
     assert response.status_code == 200 # retrun code 404 notfound
     
     supplier_id = 34
-    response = httpx.get(f"{BASE_URL}/items?supplier_id={supplier_id}", headers=user_headers)
-    assert response.json()["supplier_id"] == 34
+    response = httpx.get(f"{BASE_URL}/items/supplier/{supplier_id}", headers=user_headers)
+    assert response.json()[0]["supplier_id"] == 34
     assert response.status_code == 200
 
 def test_add_items():

@@ -1,4 +1,3 @@
-# MIDDLEWARE!!! Dus weg met die authprovider bs
 from fastapi import Request, HTTPException
 from fastapi.responses import JSONResponse
 
