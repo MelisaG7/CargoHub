@@ -68,13 +68,11 @@ def test_update_item_line():
 
 def test_remove_item_line():
     """Test removing an existing item line."""
-    # item_lines = ItemLines(".data/", True)
     item_lines.data = DUMMY_DATA.copy()
     amount = len(item_lines.data)
 
     item_lines.remove_item_line(2)
     updated_amount = len(item_lines.data)
-    # Check if the item was removed
-    data = item_lines.get_item_lines()
+    data = item_lines.get_item_lines() # Check if the item was removed
     assert updated_amount == amount - 1
     assert all(item["id"] != 2 for item in data)
