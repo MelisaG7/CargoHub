@@ -25,6 +25,7 @@ def test_add_delete_warehouse():
     headers = {
         "api_key": "a1b2c3d4e5"
     }
+
     new_warehouse = {
         "id": 200,
         "code": "WORKS",
