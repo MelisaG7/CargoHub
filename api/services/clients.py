@@ -6,7 +6,6 @@ from models.Models import Client
 # Heb gemaakt voor jullie
 # Graaggedaan
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import JSONResponse
 
 CLIENTS = []
 
@@ -21,7 +20,6 @@ Changed variables 'x' and 'i' to 'client'
 class Clients(Base):
     def __init__(self, root_path, is_debug=False):
         self.client_database_path = root_path + "clients.json"
-        self.is_debug = is_debug
         self.load(is_debug)
         # Voeh je router toe in de init.
         self.router = APIRouter()
@@ -31,11 +29,16 @@ class Clients(Base):
 
         # Vgm hoef ik hier niet veel uit te leggen,
         # doe dit gwn voor elke endpoint die je hebt
-        self.router.add_api_route("/clients", self.get_clients, methods=["GET"])
-        self.router.add_api_route("/clients/{client_id}", self.get_client, methods=["GET"])
-        self.router.add_api_route("/clients", self.add_client, methods=["POST"])
-        self.router.add_api_route("/clients/{client_id}", self.update_client, methods=["PUT"])
-        self.router.add_api_route("/clients/{client_id}", self.remove_client, methods=["DELETE"])
+        self.router.add_api_route(
+            "/clients/", self.get_clients, methods=["GET"])
+        self.router.add_api_route(
+            "/clients/{client_id}", self.get_client, methods=["GET"])
+        self.router.add_api_route(
+            "/clients/", self.add_client, methods=["POST"])
+        self.router.add_api_route(
+            "/clients/{client_id}", self.update_client, methods=["PUT"])
+        self.router.add_api_route(
+            "/clients/{client_id}", self.remove_client, methods=["DELETE"])
 
         # Enn that was it. Je hoeft nu alleen fouthandling toe te voegen,
         # HTTPexceptions en MODEL_DUMP() GEBRUIKEN!!!!
@@ -69,7 +72,7 @@ class Clients(Base):
                             detail=f"Client with id {client_id} was not found")
 
     def add_client(self, client: Client):
-        if not self.FoutHandling().check_add_client(client, self):
+        if not self.FoutHandling().check_add_client(client):
             raise HTTPException(status_code=400, detail="Invalid client body")
         # Adds a client object from the database.
         # This method receives a client object as a parameter
@@ -86,8 +89,7 @@ class Clients(Base):
         client_data["updated_at"] = self.get_timestamp()
         # The system adds the clientobject to the database
         self.client_database.append(client_data)
-        self.save()
-        return JSONResponse(status_code=201, content={"message": "Client was succesfully added to the database"})
+        return {"message": "Client was succesfully added to the database"}
 
     def update_client(self, client_id: int, client: Client):
         if not self.FoutHandling().check_put_client(client, client_id):
@@ -120,7 +122,6 @@ class Clients(Base):
                 The system replaces all values of the found client object,
                 with the values of the client object sent as a parameter
                 '''
-                self.save()
                 return {"message": "client successfully updated."}
 
     def remove_client(self, client_id: int):
@@ -142,11 +143,8 @@ class Clients(Base):
                 if a client object is found,
                 the system deletes it from the database.
                 '''
-                self.save()
                 return {"message":
                         "client successfully removed from the database."}
-        raise HTTPException(status_code=404,
-                            detail=f"Client with id {client_id} was not found")
 
     def load(self, is_debug):
         '''
