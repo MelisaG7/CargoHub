@@ -7,7 +7,7 @@ from models.Models import ItemGroup
 class TestItemGroups:
 
     def setup_method(self):
-        self.item_groups = ItemGroups("./data/", is_debug=True)
+        self.item_groups = ItemGroups("", is_debug=True)
         self.item_groups.item_groups_database = [ 
             {
                 "id": 0,

@@ -15,15 +15,14 @@ class ClientsFoutHandling:
 
     def __init__(self):
         self.RequiredFields = [
-            "id", "name", "address", "city",
-            "zip_code", "province", "country",
+            "id", "name", "address", "city", 
+            "zip_code", "province", "country", 
             "contact_name", "contact_phone",
             "contact_email"
         ]
 
-    def clients(self):
-        from services.clients import Clients
-        return Clients("./data/", False)
+    def clients(self, client):
+        return client
 
     def check_valid_id(self, client_id):
         if client_id < 0:
@@ -34,14 +33,14 @@ class ClientsFoutHandling:
         # check on negatieve IDs
         return self.check_valid_id(client_id)
 
-    def check_add_client(self, client: Client):
+    def check_add_client(self, client: Client, clients):
         # Je hoeft niet meer te checken of de body klopt.
         # Dat doet fastAPI zelf al.
-        for klant in self.clients().client_database:
+        for klant in clients.client_database:
             # BELANGRIJK! Bij het loopen moet je de client object,
             # eerst omzetten in een dictionary door 'model_dump()' te
             # gebruiken.
-            # Als je dat niet doet krijg je een 500 internal server error
+            # Als je dat niet doet krijg je een 500 internal server error 
             if klant["id"] == client.model_dump()["id"]:
                 return False
         return True

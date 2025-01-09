@@ -52,15 +52,15 @@ class TestEndpointsInventories:
         self.teardown()
 
     def load_all_inventory_data(self):
-        with open('data/inventories.json', 'r') as file:
+        with open('./data/inventories.json', 'r') as file:
             return json.load(file)
 
     def restore_original_data(self):
-        with open('data/inventories.json', 'w') as file:
+        with open('./data/inventories.json', 'w') as file:
             json.dump(self.original_data, file)
 
     def load_inventory_data(self, inventory_id: int):
-        with open('data/inventories.json', 'r') as file:
+        with open('./data/inventories.json', 'r') as file:
             data = json.load(file)
             for inventory in data:
                 if inventory["id"] == inventory_id:
@@ -113,6 +113,7 @@ class TestEndpointsInventories:
 
         response = httpx.post(f"{BASE_URL}", json=self.WrongDummyInventory, headers=self.headerlist[0])
         assert response.status_code == 400 or response.status_code == 422
+        self.restore_original_data()
         # En dit is 201 ipv 400, maar de test zelf lukt gwoon
 
     def test_put_inventory(self):
@@ -127,6 +128,7 @@ class TestEndpointsInventories:
         response = httpx.put(f"{BASE_URL}/{self.DummyInventory['id']}", json=self.DummyInventory, headers=self.headerlist[1])
         assert response.status_code == 403
         # Ook weer 500 out of nowhere. Pisses me off fr
+        self.restore_original_data()
 
     def test_remove_inventory(self):
         response = httpx.delete(f"{BASE_URL}/{11720}", headers=self.headerlist[0])
@@ -139,6 +141,7 @@ class TestEndpointsInventories:
         response = httpx.delete(f"{BASE_URL}/{11710}", headers=self.headerlist[1])
         assert response.status_code == 403
         # Als ik deze errors heb gefixt of in de proces daarvan dan ben ik allang long gone in de mental hospital
+        self.restore_original_data()
 
 
 if __name__ == '__main__':

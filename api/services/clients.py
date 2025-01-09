@@ -134,7 +134,7 @@ class Clients(Base):
         for client in self.client_database:
             if client["id"] == client_id:
                 '''
-                 The system searches for the client object,
+                The system searches for the client object,
                 that matches the id given as a parameter.
                 '''
                 self.client_database.remove(client)
@@ -143,10 +143,9 @@ class Clients(Base):
                 the system deletes it from the database.
                 '''
                 self.save()
-                return {"message":
-                        "client successfully removed from the database."}
+                return {"message": "client successfully removed from the database."}
         raise HTTPException(status_code=404,
-                            detail=f"Client with id {client_id} was not found")
+                    detail=f"Client with id {client_id} was not found")
 
     def load(self, is_debug):
         '''
