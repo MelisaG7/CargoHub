@@ -7,7 +7,7 @@ from models.Models import Client
 class TestClients:
 
     def setup_method(self):
-        self.clients = Clients("./data/", is_debug=True)
+        self.clients = Clients("", is_debug=True)
         self.clients.client_database = [
             {
                 "id": 20,

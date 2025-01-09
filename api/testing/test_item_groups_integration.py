@@ -32,15 +32,15 @@ class TestEndpointsItemGroups:
         self.teardown()
 
     def load_all_item_groups_data(self):
-        with open('data/item_groups.json', 'r') as file:
+        with open('./data/item_groups.json', 'r') as file:
             return json.load(file)
 
     def restore_original_data(self):
-        with open('data/item_groups.json', 'w') as file:
+        with open('./data/item_groups.json', 'w') as file:
             json.dump(self.original_data, file)
 
     def load_item_group_data(self, inventory_id: int):
-        with open('data/item_groups.json', 'r') as file:
+        with open('./data/item_groups.json', 'r') as file:
             data = json.load(file)
             for itemgroup in data:
                 if itemgroup["id"] == inventory_id:
@@ -88,6 +88,7 @@ class TestEndpointsItemGroups:
         assert response.status_code == 400 or response.status_code == 422
         # Dit geeft mij weer 404 maar waarom MANNNNN!
         # Kan dat uberhaupt bij post?!
+        self.restore_original_data()
 
     def test_put_item_group(self):
         response = httpx.put(f"{BASE_URL}/{300}", json=self.DummyItem_group, headers=self.headerlist[0])
@@ -101,7 +102,8 @@ class TestEndpointsItemGroups:
 
         response = httpx.put(f"{BASE_URL}/{1}", json=self.WrongDummyItem_group, headers=self.headerlist[0])
         assert response.status_code == 400 or response.status_code == 422
-        # Klopt niet
+        # Klopt niet.
+        self.restore_original_data()
 
     def test_remove_item_group(self):
         response = httpx.post(f"{BASE_URL}", json=self.DummyItem_group, headers=self.headerlist[0])
@@ -112,6 +114,7 @@ class TestEndpointsItemGroups:
         response = httpx.get(f"{BASE_URL}/{300}", headers=self.headerlist[0])
         assert response.status_code == 404
         # 500..
+        self.restore_original_data()
 
 
 if __name__ == '__main__':
