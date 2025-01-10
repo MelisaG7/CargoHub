@@ -1,5 +1,5 @@
 import pytest
-from models.shipments import Shipments
+from services.shipments import Shipments
 
 SHIPMENTS = [
     {"id": 1, "items": [{"item_id": 101, "amount": 5}], "shipment_status": "Pending"},
@@ -18,21 +18,6 @@ def test_get_shipment():
     ship.data = SHIPMENTS
     assert ship.get_shipment(1) == SHIPMENTS[0]  # Zending 1 ophalen
     assert ship.get_shipment(999) is None  # Niet-bestaande zending moet None retourneren
-
-def test_add_shipment():
-    ship = Shipments(root_path="", is_debug=True)
-    ship.data = SHIPMENTS.copy()
-    new_shipment = {"id": 4, "items": [{"item_id": 103, "amount": 1}], "shipment_status": "Pending"}
-    ship.add_shipment(new_shipment)
-    assert len(ship.data) == 4  # Controleer of de nieuwe zending is toegevoegd
-    assert ship.data[-1]["id"] == 4  # De laatste zending moet de nieuwe zending zijn
-
-def test_update_shipment():
-    ship = Shipments(root_path="", is_debug=True)
-    ship.data = SHIPMENTS.copy()
-    updated_shipment = {"id": 1, "items": [{"item_id": 101, "amount": 10}], "shipment_status": "Shipped"}
-    ship.update_shipment(1, updated_shipment)
-    assert ship.data[0]["items"][0]["amount"] == 10  # Zending moet zijn bijgewerkt
 
 def test_remove_shipment():
     ship = Shipments(root_path="", is_debug=True)

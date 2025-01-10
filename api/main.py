@@ -6,6 +6,9 @@ from services.items import Items
 from services.clients import Clients
 from services.item_groups import ItemGroups
 from services.inventories import Inventories
+from services.locations import Locations
+from services.orders import Orders
+from services.shipments import Shipments
 from services.warehouses import Warehouses
 from services.transfers import Transfers
 from services.suppliers import Suppliers
@@ -34,6 +37,9 @@ app.include_router(Items("./data/", False).router, prefix="/api/v1")
 app.include_router(Clients("./data/", False).router, prefix="/api/v1")
 app.include_router(Inventories("./data/", False).router, prefix="/api/v1")
 app.include_router(ItemGroups("./data/", False).router, prefix="/api/v1")
+app.include_router(Locations("./data/", False).router, prefix="/api/v1")
+app.include_router(Orders("./data/", False).router, prefix="/api/v1")
+app.include_router(Shipments("./data/", False).router, prefix="/api/v1")
 app.include_router(Warehouses("./data/", False).router, prefix="/api/v1")
 app.include_router(Transfers("./data/", False).router, prefix="/api/v1")
 app.include_router(Suppliers("./data/", False).router, prefix="/api/v1")
