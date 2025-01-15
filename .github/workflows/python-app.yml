@@ -1,69 +1,104 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 name: Python application
 
 on:
   push:
     branches:
-      - main
-      - develop
+      - main  # Target Production environment
+      - staging  # Target Staging environment
+      - develop  # Target Development environment
 
 jobs:
-  build:
+  development:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.10"
-        cache: 'pip'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install flake8
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Lint with flake8
-      run: |
-        # Stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # Exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-
-  test: 
-    needs: build
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Lint with flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+  staging: 
+    needs: development
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.10"
-        cache: 'pip'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install flake8 pytest pytest-cov fastapi uvicorn
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Start API server
-      run: |
-        uvicorn api.main:app --host 0.0.0.0 --port 8000 &
-        sleep 5  # Allow time for the server to start
-    - name: Test with pytest
-      run: |
-        coverage run -m pytest
-    - name: Run code coverage
-      if: always()
-      run: |
-        # Run coverage report
-        coverage xml
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 pytest pytest-cov fastapi uvicorn
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Start API server
+        run: |
+          python api/main.py &  # Adjust the path to your server script
+          sleep 5  # Allow time for the server to start
+      - name: Test with pytest
+        run: |
+          # pytest
+          # pytest --cov --cov-report term --cov-report xml:coverage.xml
+          coverage run -m pytest
+      - name: Run code coverage
+        if: always()
+        run: |
+          # Run coverage report
+          coverage xml
+          # Report and write to summary.
+          coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
+          # Report again and fail if the total average is under 80%.
+          coverage report --fail-under=80
+      - name: Store coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+        if: ${{ failure() }}
 
-        # Report and write to summary.
-        coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
+  deploy:
+    # commented out to test deployment
+    # needs: staging 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to environment
+        run: |
+          echo "Deploying to the specified environment"
+      
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-        # Report again and fail if the total average is under 80%.
-        coverage report --fail-under=80
-    - name: Store coverage report
-      uses: actions/upload-artifact@v4
-      with:
-        name: coverage-report
-        path: coverage.xml
-      if: ${{ failure() }}
+
+      # Install Docker Compose
+      - name: Install Docker Compose
+        run: |
+          curl -L "https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose --version
+      # Set up Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Create image if needed and start containers in Docker
+        run: |
+          docker-compose up -d --build
+          
+    #commented out to test the deployment
+    # environment:
+    #   name: ${{ github.ref_name == 'main' && 'Production' || github.ref_name == 'staging' && 'Staging' || 'Development' }}
+
+  
