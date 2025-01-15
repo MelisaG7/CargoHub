@@ -50,7 +50,7 @@ class Transfers(Base):
                 return transfer
         return None
 
-    def get_items_in_transfer(self, transfer_id):
+    def get_items_in_transfer(self, transfer_id: int):
         """Retrieves the items within a specified transfer.
 
         Args:
