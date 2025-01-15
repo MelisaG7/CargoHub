@@ -45,7 +45,7 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Start API server
       run: |
-        uvicorn api.main:app --host 127.0.0.1 --port 8000 &
+        uvicorn api.main:app --host 0.0.0.0 --port 8000 &
         sleep 5  # Allow time for the server to start
     - name: Test with pytest
       run: |
