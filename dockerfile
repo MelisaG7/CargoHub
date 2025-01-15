@@ -7,7 +7,9 @@ WORKDIR /api
 # Copy application code
 # COPY ./api ./
 
-
+# Install Python dependencies directly
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir fastapi uvicorn pytest flake8 pytest-cov
 # Expose application port (if required)
 EXPOSE 3000
 
