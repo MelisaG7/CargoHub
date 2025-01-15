@@ -28,48 +28,48 @@ jobs:
         # Exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-test: 
-  needs: build
-  runs-on: ubuntu-latest
-  steps:
-  - uses: actions/checkout@v4
-  - name: Set up Python 3.10
-    uses: actions/setup-python@v5
-    with:
-      python-version: "3.10"
-      cache: 'pip'
-  - name: Install dependencies
-    run: |
-      python -m pip install --upgrade pip
-      pip install flake8 pytest pytest-cov fastapi uvicorn
-      if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-  - name: Start API server
-    run: |
-      nohup uvicorn api.main:app --host 127.0.0.1 --port 8000 &
-      sleep 10  # Geef voldoende tijd voor de server om op te starten
-  - name: Check if API server is running
-    run: |
-      until curl --silent --fail http://127.0.0.1:8000/health; do
-        echo "Waiting for API to start..."
-        sleep 2
-      done
-  - name: Test with pytest
-    run: |
-      coverage run -m pytest
-  - name: Run code coverage
-    if: always()
-    run: |
-      # Run coverage report
-      coverage xml
+  test: 
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.10"
+        cache: 'pip'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pytest pytest-cov fastapi uvicorn
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Start API server
+      run: |
+        nohup uvicorn api.main:app --host 127.0.0.1 --port 8000 &
+        sleep 10  # Geef voldoende tijd voor de server om op te starten
+    - name: Check if API server is running
+      run: |
+        until curl --silent --fail http://127.0.0.1:8000/health; do
+          echo "Waiting for API to start..."
+          sleep 2
+        done
+    - name: Test with pytest
+      run: |
+        coverage run -m pytest
+    - name: Run code coverage
+      if: always()
+      run: |
+        # Run coverage report
+        coverage xml
 
-      # Report and write to summary.
-      coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
+        # Report and write to summary.
+        coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
 
-      # Report again and fail if the total average is under 80%.
-      coverage report --fail-under=80
-  - name: Store coverage report
-    uses: actions/upload-artifact@v4
-    with:
-      name: coverage-report
-      path: coverage.xml
-    if: ${{ failure() }}
+        # Report again and fail if the total average is under 80%.
+        coverage report --fail-under=80
+    - name: Store coverage report
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: coverage.xml
+      if: ${{ failure() }}
