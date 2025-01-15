@@ -49,7 +49,6 @@ jobs:
         sleep 5  # Allow time for the server to start
     - name: Test with pytest
       run: |
-        # Run tests with coverage
         coverage run -m pytest
     - name: Run code coverage
       if: always()
