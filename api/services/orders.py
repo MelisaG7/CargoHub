@@ -1,7 +1,8 @@
 import json
-
-from models.base import Base
-# from providers import data_provider
+from services.base import Base
+from fastapi import APIRouter, HTTPException
+from models.Models import Order
+from fastapi.responses import JSONResponse
 
 ORDERS = []
 
@@ -16,6 +17,19 @@ class Orders(Base):
         """
         self.data_path = root_path + "orders.json"
         self.load(is_debug)
+        self.router = APIRouter()
+
+
+        self.router.add_api_route("/orders/", self.get_orders, methods=["GET"])
+        self.router.add_api_route("/orders/{order_id}", self.get_order, methods=["GET"])
+        self.router.add_api_route("/orders/{order_id}", self.get_items_in_order, methods=["GET"])
+        self.router.add_api_route("/orders/{shipment_id}", self.get_orders_in_shipment, methods=["GET"])
+        self.router.add_api_route("/orders/{client_id}", self.get_orders_for_client, methods=["GET"])
+        self.router.add_api_route("/orders/", self.add_order, methods=["POST"])
+        self.router.add_api_route("/orders/{order_id}", self.update_order, methods=["PUT"])
+        self.router.add_api_route("/orders/{order_id}", self.update_items_in_order, methods=["PUT"])
+        self.router.add_api_route("/orders/{order_id}", self.update_orders_in_shipment, methods=["PUT"])
+        self.router.add_api_route("/orders/{order_id}", self.remove_order, methods=["DELETE"])
 
     def DataProvider():
         from providers import data_provider
@@ -29,7 +43,7 @@ class Orders(Base):
         """
         return self.data
 
-    def get_order(self, order_id):
+    def get_order(self, order_id:int):
         """Zoekt en retourneert een specifieke bestelling op basis van het order-ID.
         
         Args:
@@ -43,7 +57,7 @@ class Orders(Base):
                 return order
         return None
 
-    def get_items_in_order(self, order_id):
+    def get_items_in_order(self, order_id:int):
         """Haalt alle items op binnen een specifieke bestelling.
         
         Args:
@@ -87,27 +101,29 @@ class Orders(Base):
                 result.append(order)
         return result
 
-    def add_order(self, order):
+    def add_order(self, order: Order):
         """Voegt een nieuwe bestelling toe aan de data met tijdstempels voor aanmaak en update.
         
         Args:
             order (dict): De gegevens van de bestelling om toe te voegen.
         """
-        order["created_at"] = self.get_timestamp()
-        order["updated_at"] = self.get_timestamp()
+        order_dictionary = order.model_dump()
+        order_dictionary["created_at"] = self.get_timestamp()
+        order_dictionary["updated_at"] = self.get_timestamp()
         self.data.append(order)
 
-    def update_order(self, order_id, order):
+    def update_order(self, order_id:int, order:Order):
         """Werk een bestaande bestelling bij op basis van het order-ID.
         
         Args:
             order_id (int): Het ID van de bestelling om bij te werken.
             order (dict): De bijgewerkte bestelgegevens.
         """
-        order["updated_at"] = self.get_timestamp()
+        order_dictionary = order.model_dump()
+        order_dictionary["updated_at"] = self.get_timestamp()
         for index in range(len(self.data)):
             if self.data[index]["id"] == order_id:
-                self.data[index] = order
+                self.data[index] = order_dictionary
                 break
 
     def update_items_in_order(self, order_id, items):

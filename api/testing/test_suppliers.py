@@ -1,5 +1,5 @@
 import json
-from models.suppliers import *
+from services.suppliers import *
 import pytest
 
 
@@ -90,6 +90,7 @@ suppliers.data = DUMMY_DATA
 
 def test_get_suppliers():
     # checking if the database has been correctly set to the dummy_data
+    suppliers.data = DUMMY_DATA.copy()
     result = suppliers.get_suppliers()
     assert len(result) == 5
     assert result[0]["name"] == "Testsupply"
@@ -97,6 +98,7 @@ def test_get_suppliers():
 
 def test_get_supplier():
     # checking if it returns none to a non-existing supplier
+    suppliers.data = DUMMY_DATA.copy()
     result = suppliers.get_supplier(1)
     assert result is None
     result = suppliers.get_supplier(2)
@@ -105,22 +107,23 @@ def test_get_supplier():
 
 
 def test_add_supplier():
-    new_supplier = {
-        "id": 7,
-        "code": "SUP0006",
-        "name": "Added supplier PLC",
-        "address": "243 Henry Station Suite 090",
-        "address_extra": "Suite 011",
-        "city": "Wijnhaven",
-        "zip_code": "48427",
-        "province": "New York",
-        "country": "Guadeloupe",
-        "contact_name": "James Mills MD",
-        "phonenumber": "001-763-501-5416x14812",
-        "reference": "MP-SUP0006",
-        "created_at": "2019-10-28 00:58:28",
-        "updated_at": "2019-12-28 10:23:09"
-    }
+    new_supplier = Supplier(
+        id=7,
+        code="SUP0006",
+        name="Added supplier PLC",
+        address="243 Henry Station Suite 090",
+        address_extra="Suite 011",
+        city="Wijnhaven",
+        zip_code="48427",
+        province="New York",
+        country="Guadeloupe",
+        contact_name="James Mills MD",
+        phonenumber="001-763-501-5416x14812",
+        reference="MP-SUP0006",
+        created_at="2019-10-28 00:58:28",
+        updated_at="2019-12-28 10:23:09"
+    )
+    suppliers.data = DUMMY_DATA.copy()
     suppliers.add_supplier(new_supplier)
     result = suppliers.get_supplier(7)
     assert result is not None
@@ -128,26 +131,27 @@ def test_add_supplier():
 
 
 def test_update_supplier():
-    updated_supplier = new_supplier = {
-        "id": 7,
-        "code": "SUP0006",
-        "name": "Updated supplier PLC",
-        "address": "243 Henry Station Suite 090",
-        "address_extra": "Suite 011",
-        "city": "Wijnhaven",
-        "zip_code": "48427",
-        "province": "New York",
-        "country": "Guadeloupe",
-        "contact_name": "James Mills MD",
-        "phonenumber": "001-763-501-5416x14812",
-        "reference": "MP-SUP0006",
-        "created_at": "2019-10-28 00:58:28",
-        "updated_at": "2019-12-28 10:23:09"
-    }
-    suppliers.update_supplier(7, updated_supplier)
+    updated_supplier = Supplier(
+        id=2,
+        code="SUP0006",
+        name="Updated supplier PLC",
+        address="243 Henry Station Suite 090",
+        address_extra="Suite 011",
+        city="Wijnhaven",
+        zip_code="48427",
+        province="New York",
+        country="Guadeloupe",
+        contact_name="James Mills MD",
+        phonenumber="001-763-501-5416x14812",
+        reference="MP-SUP0006",
+        created_at="2019-10-28 00:58:28",
+        updated_at="2019-12-28 10:23:09"
+    )
+    suppliers.data = DUMMY_DATA.copy()
+    suppliers.update_supplier(2, updated_supplier)
     # time = suppliers.get_timestamp()
 
-    result = suppliers.get_supplier(7)
+    result = suppliers.get_supplier(2)
     assert result["name"] == "Updated supplier PLC"
     # assert result["updated_at"] == time
     # check if time updated correctly
@@ -155,6 +159,7 @@ def test_update_supplier():
 
 def test_remove_supplier():
     # check if correctly removed
+    suppliers.data = DUMMY_DATA.copy()
     amount_suppliers = len(suppliers.data)
     suppliers.remove_supplier(4)
 

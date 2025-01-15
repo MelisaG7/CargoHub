@@ -1,6 +1,8 @@
 import pytest
 import json
-from models.item_types import *
+# from models.item_types import *
+from services.item_types import *
+from models.Models import ItemType
 
 # Sample dummy data for tests
 DUMMY_DATA = [
@@ -33,7 +35,8 @@ def test_get_item_type():
 def test_add_item_type():
     """Test adding a new item type."""
     item_types.data = DUMMY_DATA.copy()
-    new_item = {"id": 4, "name": "Laptop", "description": ""}
+    new_item = ItemType(id=4, name="Laptop", description="description")
+
     item_types.add_item_type(new_item)
 
     # Check if the item was added
@@ -48,8 +51,7 @@ def test_add_item_type():
 def test_update_item_type():
     """Test updating an existing item type."""
     item_types.data = DUMMY_DATA.copy()
-    updated_item = {"id": 2, "name": "Updated Tablet",
-                    "description": "Updated description"}
+    updated_item = ItemType(id=2, name="Updated Tablet", description="Updated description")
     item_types.update_item_type(2, updated_item)
 
     # Check if the item was updated

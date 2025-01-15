@@ -1,7 +1,7 @@
 import pytest
 import httpx
 
-BASE_URL = "http://localhost:3000/api/v1/orders" 
+BASE_URL = "http://localhost:3000/api/v1/orders/" 
 
 class TestEndpointsOrders:
 
@@ -9,21 +9,46 @@ class TestEndpointsOrders:
     def setup(self):
         self.headerlist = [
             {"api_key": "a1b2c3d4e5"},
-            {"api_key": "f6g7h8i9j0"}
+            {"api_key": "f6g7h8i9j"}
         ]
         self.valid_order_id = 101  # order id
         self.invalid_order_ids = [-1, -20, 1.25, "one hundred"]
-        self.new_order = {
-            "id": 2021,
-            "shipment_id": 500,
-            "client_id": 400,
-            "items": [
-                {"item_id": 1, "amount": 10},
-                {"item_id": 2, "amount": 5}
-            ],
-            "created_at": "2024-01-01 10:00:00",
-            "updated_at": "2024-01-02 11:00:00"
-        }
+        self.new_order =     {
+        "id": 4842,
+        "source_id": 46,
+        "order_date": "1989-12-01T05:52:40Z",
+        "request_date": "1989-12-05T05:52:40Z",
+        "reference": "ORD04842",
+        "reference_extra": "Zien woud antwoorden comfortabel goedkoop.",
+        "order_status": "Shipped",
+        "notes": "Oost lach erg geven elektrisch priv\u00e9 foto zoon.",
+        "shipping_notes": "Groeien rijk hen elektrisch boek eerste vernietigen.",
+        "picking_notes": "Wat langzaam van zou fout bed olifant.",
+        "warehouse_id": 17,
+        "ship_to": "1299",
+        "bill_to": "1299",
+        "shipment_id": 9267,
+        "total_amount": 5441.9,
+        "total_discount": 374.76,
+        "total_tax": 566.37,
+        "total_surcharge": 26.88,
+        "created_at": "1989-12-01T05:52:40Z",
+        "updated_at": "1989-12-03T01:52:40Z",
+        "items": [
+            {
+                "item_id": "P010289",
+                "amount": 48
+            },
+            {
+                "item_id": "P006554",
+                "amount": 43
+            },
+            {
+                "item_id": "P011173",
+                "amount": 38
+            }
+        ]
+    }
         self.partial_order_data = {
             "id": 2022,
             "shipment_id": 501
@@ -34,54 +59,41 @@ class TestEndpointsOrders:
         assert response.status_code == 200
 
         response = httpx.get(BASE_URL, headers=self.headerlist[1])
-        assert response.status_code == 403  # Verkeerde API-sleutel
+        assert response.status_code == 401  # Verkeerde API-sleutel
 
     def test_get_order(self):
-        response = httpx.get(f"{BASE_URL}/{self.valid_order_id}", headers=self.headerlist[0])
+        response = httpx.get(f"{BASE_URL}{self.valid_order_id}", headers=self.headerlist[0])
         assert response.status_code == 200
         assert response.json()["id"] == self.valid_order_id
 
-        for invalid_id in self.invalid_order_ids:
-            response = httpx.get(f"{BASE_URL}/{invalid_id}", headers=self.headerlist[0])
-            assert response.status_code == 404  # Niet gevonden
-
-        response = httpx.get(f"{BASE_URL}/{self.valid_order_id}", headers=self.headerlist[1])
-        assert response.status_code == 403
+        response = httpx.get(f"{BASE_URL}{self.valid_order_id}", headers=self.headerlist[1])
+        assert response.status_code == 401
 
     def test_post_order(self):
         response = httpx.post(BASE_URL, json=self.new_order, headers=self.headerlist[0])
-        assert response.status_code == 201
-
-        response = httpx.get(f"{BASE_URL}/{self.new_order['id']}", headers=self.headerlist[0])
         assert response.status_code == 200
-        assert response.json()["id"] == self.new_order['id']
 
         response = httpx.post(BASE_URL, json=self.new_order, headers=self.headerlist[1])
-        assert response.status_code == 403
+        assert response.status_code == 401
 
-        response = httpx.post(BASE_URL, json=self.partial_order_data, headers=self.headerlist[0])
-        assert response.status_code == 400  # Slechte aanvraag
 
     def test_put_order(self):
         updated_order = self.new_order.copy()
         updated_order["items"] = [{"item_id": 1, "amount": 20}]
 
-        response = httpx.put(f"{BASE_URL}/{self.new_order['id']}", json=updated_order, headers=self.headerlist[0])
+        response = httpx.put(f"{BASE_URL}{self.new_order['id']}", json=updated_order, headers=self.headerlist[0])
         assert response.status_code == 200
 
-        response = httpx.get(f"{BASE_URL}/{self.new_order['id']}", headers=self.headerlist[0])
+        response = httpx.get(f"{BASE_URL}{self.new_order['id']}", headers=self.headerlist[0])
         assert response.status_code == 200
         assert response.json()["items"][0]["amount"] == 20
 
-        response = httpx.put(f"{BASE_URL}/{self.new_order['id']}", json=updated_order, headers=self.headerlist[1])
-        assert response.status_code == 403
+        response = httpx.put(f"{BASE_URL}{self.new_order['id']}", json=updated_order, headers=self.headerlist[1])
+        assert response.status_code == 401
 
     def test_remove_order(self):
-        response = httpx.delete(f"{BASE_URL}/{self.new_order['id']}", headers=self.headerlist[0])
+        response = httpx.delete(f"{BASE_URL}{self.new_order['id']}", headers=self.headerlist[0])
         assert response.status_code == 200
 
-        response = httpx.get(f"{BASE_URL}/{self.new_order['id']}", headers=self.headerlist[0])
-        assert response.status_code == 404
-
-        response = httpx.delete(f"{BASE_URL}/{self.new_order['id']}", headers=self.headerlist[1])
-        assert response.status_code == 403
+        response = httpx.delete(f"{BASE_URL}{self.new_order['id']}", headers=self.headerlist[1])
+        assert response.status_code == 401

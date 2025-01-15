@@ -1,30 +1,44 @@
 import json
-
-from models.base import Base
+from services.base import Base
+from fastapi import APIRouter, HTTPException
+from models.Models import Supplier
+from fastapi.responses import JSONResponse
 
 SUPPLIERS = []
+
 
 class Suppliers(Base):
     def __init__(self, root_path, is_debug=False):
         """Initializes the Suppliers class with the path to the JSON file and loads the data.
-        
+
         Args:
             root_path (str): Base path to the data.
             is_debug (bool): Indicates if debug data should be loaded.
         """
         self.data_path = root_path + "suppliers.json"
         self.load(is_debug)
+        self.router = APIRouter()
+        self.router.add_api_route(
+            "/suppliers", self.get_suppliers, methods=["GET"])
+        self.router.add_api_route(
+            "/suppliers/{supplier_id}", self.get_supplier, methods=["GET"])
+        self.router.add_api_route(
+            "/suppliers", self.add_supplier, methods=["POST"])
+        self.router.add_api_route(
+            "/suppliers/{supplier_id}", self.update_supplier, methods=["PUT"])
+        self.router.add_api_route(
+            "/suppliers/{supplier_id}", self.remove_supplier, methods=["DELETE"])
 
     def get_suppliers(self):
         """Returns a list of all suppliers stored in the data."""
         return self.data
 
-    def get_supplier(self, supplier_id):
+    def get_supplier(self, supplier_id: int):
         """Finds a specific supplier by ID and returns it as a dictionary.
-        
+
         Args:
             supplier_id (int): ID of the supplier to retrieve.
-        
+
         Returns:
             dict: The supplier data if found, otherwise None.
         """
@@ -33,32 +47,41 @@ class Suppliers(Base):
                 return supplier
         return None
 
-    def add_supplier(self, supplier):
+    def add_supplier(self, supplier: Supplier):
         """Adds a new supplier to the data with created and updated timestamps.
-        
+
         Args:
             supplier (dict): The data of the supplier to add.
         """
-        supplier["created_at"] = self.get_timestamp()
-        supplier["updated_at"] = self.get_timestamp()
-        self.data.append(supplier)
+        supplier_dictionary = supplier.model_dump()
+        supplier_dictionary["created_at"] = self.get_timestamp()
+        supplier_dictionary["updated_at"] = self.get_timestamp()
+        self.data.append(supplier_dictionary)
+        try:
+            return JSONResponse(content="Supplier has been added", status_code=201)
+        except Exception as e:
+            print(e)
 
-    def update_supplier(self, supplier_id, supplier):
+    def update_supplier(self, supplier_id: int, supplier: Supplier):
         """Updates an existing supplier based on the supplier ID.
-        
+
         Args:
             supplier_id (int): ID of the supplier to update.
             supplier (dict): The updated supplier data.
         """
-        supplier["updated_at"] = self.get_timestamp()
-        for index in range(len(self.data)):
-            if self.data[index]["id"] == supplier_id:
-                self.data[index] = supplier
-                break
+        supplier_dictionary = supplier.model_dump()
+        supplier_dictionary["updated_at"] = self.get_timestamp()
+        for suppliers in self.data:
+            try:
+                if suppliers["id"] == supplier_id:
+                    suppliers.update(supplier_dictionary)
+                    return
+            except Exception as e:
+                print(e)
 
-    def remove_supplier(self, supplier_id):
+    def remove_supplier(self, supplier_id: int):
         """Removes a supplier from the data based on the supplier ID.
-        
+
         Args:
             supplier_id (int): ID of the supplier to remove.
         """
@@ -68,7 +91,7 @@ class Suppliers(Base):
 
     def load(self, is_debug):
         """Loads supplier data from JSON or debug data.
-        
+
         Args:
             is_debug (bool): If True, loads debug data instead of the JSON file.
         """

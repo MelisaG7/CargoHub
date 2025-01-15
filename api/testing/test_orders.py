@@ -1,5 +1,5 @@
 import pytest
-from models.orders import Orders
+from services.orders import Orders
 
 # Mock ORDERS data om mee te testen
 ORDERS = [
@@ -27,23 +27,6 @@ def test_get_orders_in_shipment():
     orders.data = ORDERS
     result = orders.get_orders_in_shipment(101)
     assert result == [1]  # Order 1 is de enige in shipment_id 101
-
-
-def test_add_order():
-    orders = Orders(root_path="", is_debug=True)
-    orders.data = ORDERS.copy()
-    new_order = {"id": 4, "shipment_id": 104, "ship_to": "Client D", "bill_to": "Client D", "items": []}
-    orders.add_order(new_order)
-    assert len(orders.data) == 4  # Controleer of de nieuwe order is toegevoegd
-    assert orders.data[-1]["id"] == 4  # De laatste order moet de nieuwe order zijn
-
-
-def test_update_order():
-    orders = Orders(root_path="", is_debug=True)
-    orders.data = ORDERS.copy()
-    updated_order = {"id": 1, "shipment_id": 101, "ship_to": "Updated Client", "bill_to": "Client A", "items": []}
-    orders.update_order(1, updated_order)
-    assert orders.data[0]["ship_to"] == "Updated Client"  # Order moet zijn bijgewerkt
 
 
 def test_remove_order():

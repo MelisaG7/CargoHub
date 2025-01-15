@@ -1,5 +1,5 @@
 import pytest
-from models.warehouses import *
+from services.warehouses import *
 
 DUMMY_DATA = [
     {
@@ -78,6 +78,7 @@ warehouses.data = DUMMY_DATA
 
 def test_get_warehouses():
     # Check if the database has been correctly set to the dummy_data
+    warehouses.data = DUMMY_DATA.copy()
     result = warehouses.get_warehouses()
     assert len(result) == 4
     assert result[0]["name"] == "Tested longterm hub"
@@ -85,6 +86,7 @@ def test_get_warehouses():
 
 def test_get_warehouse():
     # Check if it returns None for a non-existing warehouse
+    warehouses.data = DUMMY_DATA.copy()
     result = warehouses.get_warehouse(999)
     assert result is None
 
@@ -94,23 +96,24 @@ def test_get_warehouse():
 
 
 def test_add_warehouse():
-    new_warehouse = {
-        "id": 6,
-        "code": "NEWCODE",
-        "name": "New Warehouse",
-        "address": "New Street 123",
-        "zip": "12345",
-        "city": "NewCity",
-        "province": "NewProvince",
-        "country": "NewCountry",
-        "contact": {
+    new_warehouse = Warehouse(
+        id=6,
+        code="NEWCODE",
+        name="New Warehouse",
+        address="New Street 123",
+        zip="12345",
+        city="NewCity",
+        province="NewProvince",
+        country="NewCountry",
+        contact={
             "name": "New Contact",
             "phone": "1234567890",
             "email": "newcontact@example.com"
         },
-        "created_at": "2024-10-13T00:00:00Z",
-        "updated_at": "2024-10-13T00:00:00Z"
-    }
+        created_at="2024-10-13T00:00:00Z",
+        updated_at="2024-10-13T00:00:00Z"
+    )
+    warehouses.data = DUMMY_DATA.copy()
     warehouses.add_warehouse(new_warehouse)
     result = warehouses.get_warehouse(6)
     assert result is not None
@@ -118,27 +121,29 @@ def test_add_warehouse():
 
 
 def test_update_warehouse():
-    updated_warehouse = {
-        "id": 6,
-        "code": "NEWCODE",
-        "name": "Updated Warehouse",
-        "address": "Updated Street 123",
-        "zip": "54321",
-        "city": "UpdatedCity",
-        "province": "UpdatedProvince",
-        "country": "UpdatedCountry",
-        "contact": {
+    updated_warehouse = Warehouse(
+        id=3,
+        code="NEWCODE",
+        name="Updated Warehouse",
+        address="Updated Street 123",
+        zip="54321",
+        city="UpdatedCity",
+        province="UpdatedProvince",
+        country="UpdatedCountry",
+        contact={
             "name": "Updated Contact",
             "phone": "0987654321",
             "email": "updatedcontact@example.com"
         },
-        "created_at": "2024-10-13T00:00:00Z",
-        "updated_at": "2024-10-13T12:00:00Z"
-    }
-    warehouses.update_warehouse(6, updated_warehouse)
+        created_at="2024-10-13T00:00:00Z",
+        updated_at="2024-10-13T12:00:00Z"
+    )
+    # omdat het de data kopieert zodat het niet afhankelijk is van de andere testen, moet ik testen op een ander warehouse dat wel bestaat in het initieële database
+    warehouses.data = DUMMY_DATA.copy()
+    warehouses.update_warehouse(3, updated_warehouse)
     # time = warehouses.get_timestamp()
 
-    result = warehouses.get_warehouse(6)
+    result = warehouses.get_warehouse(3)
     assert result["name"] == "Updated Warehouse"
     # assert result["updated_at"] == time
     # Check if the time was updated correctly
@@ -146,6 +151,7 @@ def test_update_warehouse():
 
 def test_remove_warehouse():
     # Check if a warehouse is correctly removed
+    warehouses.data = DUMMY_DATA.copy()
     amount_warehouses = len(warehouses.data)
     warehouses.remove_warehouse(4)
 

@@ -1,7 +1,8 @@
 import json
-
-from models.base import Base
-# from providers import data_provider
+from services.base import Base
+from fastapi import APIRouter, HTTPException
+from models.Models import Shipment
+from fastapi.responses import JSONResponse
 
 SHIPMENTS = []
 
@@ -20,6 +21,16 @@ class Shipments(Base):
         """
         self.data_path = root_path + "shipments.json"
         self.load(is_debug)
+        self.router = APIRouter()
+
+        self.router.add_api_route("/shipments/", self.get_shipments, methods=["GET"])
+        self.router.add_api_route("/shipments/{shipment_id}", self.get_shipment, methods=["GET"])
+        self.router.add_api_route("/shipments/{shipment_id}", self.get_items_in_shipment, methods=["GET"])
+        self.router.add_api_route("/shipments/", self.add_shipment, methods=["POST"])
+        self.router.add_api_route("/shipments/{shipment_id}", self.update_shipment, methods=["PUT"])
+        self.router.add_api_route("/shipments/{shipment_id}", self.update_items_in_shipment, methods=["PUT"])
+        self.router.add_api_route("/shipments/{shipment_id}", self.remove_shipment, methods=["DELETE"])
+
     
     def DataProvider():
         from providers import data_provider
@@ -29,7 +40,7 @@ class Shipments(Base):
         """Returns a list of all shipments stored in the data."""
         return self.data
 
-    def get_shipment(self, shipment_id):
+    def get_shipment(self, shipment_id:int):
         """Finds a specific shipment by ID and returns it as a dictionary.
         
         Args:
@@ -43,7 +54,7 @@ class Shipments(Base):
                 return shipment
         return None
 
-    def get_items_in_shipment(self, shipment_id):
+    def get_items_in_shipment(self, shipment_id:int):
         """Fetches all items within a specific shipment.
         
         Args:
@@ -57,27 +68,29 @@ class Shipments(Base):
                 return shipment["items"]
         return None
 
-    def add_shipment(self, shipment):
+    def add_shipment(self, shipment:Shipment):
         """Adds a new shipment to the data with created and updated timestamps.
         
         Args:
             shipment (dict): The data of the shipment to add.
         """
-        shipment["created_at"] = self.get_timestamp()
-        shipment["updated_at"] = self.get_timestamp()
+        shipment_dictionary = shipment.model_dump()
+        shipment_dictionary["created_at"] = self.get_timestamp()
+        shipment_dictionary["updated_at"] = self.get_timestamp()
         self.data.append(shipment)
 
-    def update_shipment(self, shipment_id, shipment):
+    def update_shipment(self, shipment_id:int, shipment:Shipment):
         """Updates an existing shipment based on the shipment ID.
         
         Args:
             shipment_id (int): ID of the shipment to update.
             shipment (dict): The updated shipment data.
         """
-        shipment["updated_at"] = self.get_timestamp()
+        shipment_dictionary = shipment.model_dump()
+        shipment_dictionary["updated_at"] = self.get_timestamp()
         for index in range(len(self.data)):
             if self.data[index]["id"] == shipment_id:
-                self.data[index] = shipment
+                self.data[index] = shipment_dictionary
                 break
 
     def update_items_in_shipment(self, shipment_id, items):
