@@ -72,7 +72,7 @@ jobs:
 
   deploy:
     # commented out to test deployment
-    # needs: staging 
+    needs: staging 
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to environment
