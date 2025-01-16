@@ -1,5 +1,6 @@
 import json
 from services.base import Base
+from services.locations import Locations
 from fastapi import APIRouter, HTTPException
 from models.Models import Warehouse
 from fastapi.responses import JSONResponse
@@ -23,6 +24,8 @@ class Warehouses(Base):
         self.router.add_api_route(
             "/warehouses/{warehouse_id}", self.get_warehouse, methods=["GET"])
         self.router.add_api_route(
+            "/warehouses/{warehouse_id}/locations", self.get_locations_warehouse, methods=["GET"])
+        self.router.add_api_route(
             "/warehouses", self.add_warehouse, methods=["POST"])
         self.router.add_api_route(
             "/warehouses/{warehouse_id}", self.update_warehouse, methods=["PUT"])
@@ -43,6 +46,13 @@ class Warehouses(Base):
             if warehouse["id"] == warehouse_id:
                 return warehouse
         return None
+
+    def get_locations_warehouse(self, warehouse_id: int):
+        try:
+            location_obj = Locations("./data/", False)
+            return location_obj.get_locations_in_warehouse(warehouse_id)
+        except Exception as e:
+            print(e)
 
     def add_warehouse(self, warehouse: Warehouse):
         """

@@ -56,7 +56,7 @@ class Locations(Base):
                 return location
         return None
 
-    def get_locations_in_warehouse(self, warehouse_id):
+    def get_locations_in_warehouse(self, warehouse_id: int):
         """Het haalt alle locaties op binnen een specifiek magazijn.
 
         Args:
@@ -65,10 +65,22 @@ class Locations(Base):
         Returns:
             list: Een lijst met locaties binnen het opgegeven magazijn.
         """
+
         locations_in_warehouse = []
-        for location in self.data:
-            if location["warehouse_id"] == warehouse_id:
-                locations_in_warehouse.append(location)
+        # Doorloop alle locaties in de data
+        try:
+            for location in self.data:
+                if location["warehouse_id"] == warehouse_id:
+                    locations_in_warehouse.append(location)
+            return locations_in_warehouse
+        except Exception as e:
+            print(e)
+
+        # Controleer of er locaties zijn gevonden
+        if not locations_in_warehouse:
+            return JSONResponse(content="Warehouse not found.", status_code=404)
+
+        # Geef de gevonden locaties terug
         return locations_in_warehouse
 
     def add_location(self, location: Location):

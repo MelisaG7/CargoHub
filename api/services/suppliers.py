@@ -1,5 +1,6 @@
 import json
 from services.base import Base
+from services.items import Items
 from fastapi import APIRouter, HTTPException
 from models.Models import Supplier
 from fastapi.responses import JSONResponse
@@ -22,6 +23,8 @@ class Suppliers(Base):
             "/suppliers", self.get_suppliers, methods=["GET"])
         self.router.add_api_route(
             "/suppliers/{supplier_id}", self.get_supplier, methods=["GET"])
+        self.router.add_api_route(
+            "/suppliers/{supplier_id}/items", self.get_items_supplies, methods=["GET"])
         self.router.add_api_route(
             "/suppliers", self.add_supplier, methods=["POST"])
         self.router.add_api_route(
@@ -46,6 +49,19 @@ class Suppliers(Base):
             if supplier["id"] == supplier_id:
                 return supplier
         return None
+
+    def get_items_supplies(self, supplier_id: int):
+        try:
+            items_obj = Items("./data/", False)
+            items = items_obj.get_items_for_supplier(supplier_id)
+
+            if not items:  # Controleer of de lijst leeg is
+                return JSONResponse(content="No items found for the given supplier.", status_code=404)
+
+            return items
+
+        except Exception as e:
+            print(e)
 
     def add_supplier(self, supplier: Supplier):
         """Adds a new supplier to the data with created and updated timestamps.
