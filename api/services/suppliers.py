@@ -1,6 +1,5 @@
 import json
 from services.base import Base
-from services.items import Items
 from fastapi import APIRouter, HTTPException
 from models.Models import Supplier
 from fastapi.responses import JSONResponse
@@ -51,6 +50,7 @@ class Suppliers(Base):
         return None
 
     def get_items_supplies(self, supplier_id: int):
+        from services.items import Items
         try:
             items_obj = Items("./data/", False)
             items = items_obj.get_items_for_supplier(supplier_id)
