@@ -1,6 +1,10 @@
 import json
 import re
 from services.base import Base
+from services.item_lines import ItemLines
+from services.item_types import ItemTypes
+from services.item_groups import ItemGroups
+from services.suppliers import Suppliers
 
 from fastapi import APIRouter, HTTPException
 from models.Models import Item
@@ -38,6 +42,7 @@ class Items(Base):
             "supplier_part_number"
         ]
         self.load(is_debug)
+
 
         self.router = APIRouter()
 
@@ -165,6 +170,31 @@ class Items(Base):
 
         :param item: The item data to add.
         """
+        item_lines = ItemLines("./data/", False)
+        item_types = ItemTypes("./data/", False)
+        item_groups = ItemGroups("./data/", False)
+        suppliers = Suppliers("./data/", False)
+
+        searchedline = item_lines.get_item_line(item.item_line)
+        if searchedline is None:
+                            raise HTTPException(status_code=404,
+                                detail=f"Itemline with id {item.item_line} does not exist")
+        
+        searchedtype = item_types.get_item_type(item.item_type)
+        if searchedtype is None:
+                            raise HTTPException(status_code=404,
+                                detail=f"Itemtype with id {item.item_type} does not exist")
+        
+        searchedgroup = item_groups.get_item_group(item.item_group)
+        if searchedgroup is None: 
+             raise HTTPException(status_code=404,
+                                detail=f"Item group with id {item.item_group} does not exist")
+        
+        searchedsupplierid = suppliers.get_supplier(item.supplier_id)
+        if searchedsupplierid is None:
+             raise HTTPException(status_code=404,
+                                detail=f"Supplier with id {item.supplier_id} does not exist")
+
         item_dict = item.model_dump()
 
         # checks whether item_type has the correct body
