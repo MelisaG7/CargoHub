@@ -8,6 +8,7 @@ on:
       - main  # Target Production environment
       - staging  # Target Staging environment
       - develop  # Target Development environment
+      - pipeline-docker-login # voor eventjes om te testen
 
 jobs:
   development:
