@@ -98,6 +98,27 @@ class TestEndpointsInventories:
             # Dit geeft mij 200 ipv 404
     # Deze methode werkt half alleen met headerlist[0] juiste ids.
 
+    def test_get_inventories_for_item():
+        return
+
+    def test_get_inventory_totals_for_item(self):
+        item_id = "P000001"
+        response = httpx.get(f"http://localhost:3000/api/v1/items/{item_id}/inventory/totals", headers=self.headerlist[0])
+        assert response.status_code == 200
+        totals = response.json()
+        assert "total_expected" in totals
+        assert "total_ordered" in totals
+        assert "total_allocated" in totals
+        assert "total_available" in totals
+        # Dit werkt
+
+        response = httpx.get(f"http://localhost:3000/api/v1/items/{item_id}/inventory/totals", headers=self.headerlist[1])
+        assert response.status_code == 200
+
+        wrong_item_id = "INVALID_ID"
+        response = httpx.get(f"http://localhost:3000/api/v1/items/{wrong_item_id}/inventory/totals", headers=self.headerlist[0])
+        assert response.status_code == 400
+
     def test_post_inventory(self):
         response = httpx.post(f"{BASE_URL}", json=self.DummyInventory, headers=self.headerlist[0])
         assert response.status_code == 201
