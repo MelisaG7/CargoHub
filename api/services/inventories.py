@@ -64,7 +64,7 @@ class Inventories(Base):
     # Hahah vergeten welke endpoint ik nodig heb voor dit + geen fouthandling geimplementeerd
     # Ewa ja
     def get_inventories_for_item(self, item_id: str):
-        if not self.FoutHandling().check_get_inventory_for_item():
+        if not self.FoutHandling().check_get_inventory_for_item(item_id):
             raise HTTPException(status_code=400, detail="Invalid item id.")
         # Skip deze fouthandling voor even want wordt toch even overgeslagen
         # This method searches for inventory objects with item_id
@@ -81,7 +81,7 @@ class Inventories(Base):
 
     # Nog niet de tijd om deze methods te facen, probs morgen
     def get_inventory_totals_for_item(self, item_id: str):
-        if not self.FoutHandling().check_get_inventory_totals_for_item:
+        if not self.FoutHandling().check_get_inventory_totals_for_item(item_id):
             raise HTTPException(status_code=400, detail="invalid item id")
         # Skip deze ook
         '''
