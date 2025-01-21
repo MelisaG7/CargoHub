@@ -1,30 +1,42 @@
 import httpx
+import os
 
 
 BASE_URL = "http://localhost:3000/api/v1"
 
 
+def get_api_headers(key_name="API_KEY_1"):
+    """
+    Haalt de headers op met de juiste API-key.
+    :param key_name: De naam van de API-key in de omgeving (bijv. API_KEY_1 of API_KEY_2).
+    """
+    # Laad .env lokaal als je niet in GitHub Actions bent
+    if not os.getenv("GITHUB_ACTIONS"):
+        from dotenv import load_dotenv
+        load_dotenv()
+
+    # Haal de API-key uit de omgeving
+    api_key = os.getenv(key_name)
+
+    # Maak de headers aan
+    return {"api_key": api_key}
+
+
 def test_get_transfers():
-    headers = {
-        "api_key": "a1b2c3d4e5"
-    }
+    headers = get_api_headers("API_KEY_1")
     response = httpx.get(f"{BASE_URL}/transfers", headers=headers)
     assert response.status_code == 200
 
 
 def test_get_one_transfers():
-    headers = {
-        "api_key": "a1b2c3d4e5"
-    }
+    headers = get_api_headers("API_KEY_1")
     response = httpx.get(f"{BASE_URL}/transfers/10", headers=headers)
     assert response.json()["reference"] == "TR00010"
     assert response.status_code == 200
 
 
 def test_add_transfers():
-    headers = {
-        "api_key": "a1b2c3d4e5"
-    }
+    headers = get_api_headers("API_KEY_1")
     new_transfer = {
         "id": 800000,
         "reference": "TR800000",
@@ -60,9 +72,6 @@ def test_add_transfers():
 
 
 def test_delete_transfers():
-    headers = {
-        "api_key": "f6g7h8i9j0"
-    }
-
+    headers = get_api_headers("API_KEY_2")
     response = httpx.delete(f"{BASE_URL}/transfers/8000", headers=headers)
     assert response.status_code == 403

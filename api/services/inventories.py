@@ -70,8 +70,9 @@ class Inventories(Base):
             status_code=404, detail=f"Inventory with id {inventory_id} not found in the database")
 
     def get_inventories_for_item(self, item_id: str):
-        # This method searches for inventory objects with item_id
-
+        if not self.FoutHandling().check_get_inventory_for_item(item_id):
+            raise HTTPException(status_code=400, detail="Invalid item id.")
+        # Skip deze fouthandling voor even want wordt toch even overgeslagen
         found_inventories = []
         for inventory in self.inventory_database:
             '''
@@ -84,7 +85,9 @@ class Inventories(Base):
         return found_inventories
 
     # Nog niet de tijd om deze methods te facen, probs morgen
-    def get_inventory_totals_for_item(self, item_id: int):
+    def get_inventory_totals_for_item(self, item_id: str):
+        if not self.FoutHandling().check_get_inventory_totals_for_item(item_id):
+            raise HTTPException(status_code=400, detail="invalid item id")
         # Skip deze ook
         '''
          A dictionary is made for the total of items in inventories

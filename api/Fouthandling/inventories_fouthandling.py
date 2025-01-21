@@ -11,6 +11,11 @@ class InventoriesFoutHandling:
         from services.inventories import Inventories
         return Inventories("./data/", False)
 
+    @staticmethod
+    def locations():
+        from services.locations import Locations
+        return Locations("./data/", False)
+
     def check_valid_id(self, inventory_id: int):
         # checks on negatieve ids
         if inventory_id < 0:
@@ -38,7 +43,20 @@ class InventoriesFoutHandling:
         # Anything else maybe too?
         return self.check_get_inventory_for_item(item_id)
 
+    def check_locations(self, inventory: Inventory):
+        try:
+            locations = [loc["id"] for loc in self.locations().data]
+            for location in inventory.locations:
+                if location not in locations:
+                    return False
+            return True
+        except Exception as e:
+            print(e)  # Replace with appropriate logging
+            return False  # Optionally return a default value or re-raise the exception
+
     def check_add_inventory(self, inventory: Inventory, inventories):
+        if not self.check_locations(inventory):
+            return False
         # checks if id not in database
         for inventaris in inventories.inventory_database:
             if inventaris["id"] == inventory.model_dump()["id"]:
@@ -46,6 +64,8 @@ class InventoriesFoutHandling:
         return True
 
     def check_put_inventory(self, inventory: Inventory, inventory_id):
+        if not self.check_locations(inventory):
+            return False
         # checks if id body == id parameter
         if inventory.model_dump()["id"] != inventory_id:
             return False

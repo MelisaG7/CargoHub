@@ -1,7 +1,7 @@
 import pytest
 import httpx
 import json
-
+import os
 BASE_URL = "http://localhost:3000/api/v1/itemgroups"
 
 
@@ -9,14 +9,15 @@ class TestEndpointsItemGroups:
 
     @pytest.fixture(autouse=True)
     def setup_teardown(self):
+        if not os.getenv("GITHUB_ACTIONS"):
+            from dotenv import load_dotenv
+            load_dotenv()
+
+        # Laad de API-keys dynamisch uit de omgeving
         self.headerlist = [
-            {
-                "api_key": "a1b2c3d4e5"
-            },
-            {
-                "api_key": "f6g7h8i9j0"
-            }
-        ]
+            {"api_key": os.getenv("API_KEY_1")},
+            {"api_key": os.getenv("API_KEY_2")}]
+        # api_key 3 is een foutieve key om te testen op toegankelijkheid
         self.ids = [1, 20, 50, 100]
         self.WrongIds = [-1, -20, "hundred"]
         self.DummyItem_group = {
@@ -68,46 +69,56 @@ class TestEndpointsItemGroups:
         assert response.status_code == 200
 
         for Id in self.WrongIds:
-            response = httpx.get(f"{BASE_URL}/{Id}", headers=self.headerlist[0])
+            response = httpx.get(f"{BASE_URL}/{Id}",
+                                 headers=self.headerlist[0])
             assert response.status_code == 400 or response.status_code == 422
             # Dit geet 200 terwijl dat niet hoort
         # Deze methode werkt ook volledig Yayyy
 
     def test_post_item_group(self):
-        response = httpx.post(f"{BASE_URL}", json=self.DummyItem_group, headers=self.headerlist[0])
+        response = httpx.post(
+            f"{BASE_URL}", json=self.DummyItem_group, headers=self.headerlist[0])
         assert response.status_code == 201
         # # Heel raar, thunder geeft ook 404 ipv gewoon 201...?
         item_group_data = self.load_item_group_data(self.DummyItem_group["id"])
         assert item_group_data["description"] == self.DummyItem_group["description"]
 
-        response = httpx.post(f"{BASE_URL}", json=self.DummyItem_group, headers=self.headerlist[1])
+        response = httpx.post(
+            f"{BASE_URL}", json=self.DummyItem_group, headers=self.headerlist[1])
         assert response.status_code == 403
         # Dit werkt wel gewoon
 
-        response = httpx.post(f"{BASE_URL}", json=self.WrongDummyItem_group, headers=self.headerlist[0])
+        response = httpx.post(
+            f"{BASE_URL}", json=self.WrongDummyItem_group, headers=self.headerlist[0])
         assert response.status_code == 400 or response.status_code == 422
         # Dit geeft mij weer 404 maar waarom MANNNNN!
         # Kan dat uberhaupt bij post?!
         self.restore_original_data()
 
     def test_put_item_group(self):
-        response = httpx.put(f"{BASE_URL}/{300}", json=self.DummyItem_group, headers=self.headerlist[0])
+        response = httpx.put(
+            f"{BASE_URL}/{300}", json=self.DummyItem_group, headers=self.headerlist[0])
         assert response.status_code == 201
-        updated_item_group_data = self.load_item_group_data(self.DummyItem_group["id"])
+        updated_item_group_data = self.load_item_group_data(
+            self.DummyItem_group["id"])
         assert updated_item_group_data["name"] == self.DummyItem_group["name"]
 
-        response = httpx.put(f"{BASE_URL}/{1}", json=self.DummyItem_group, headers=self.headerlist[1])
+        response = httpx.put(
+            f"{BASE_URL}/{1}", json=self.DummyItem_group, headers=self.headerlist[1])
         assert response.status_code == 403
         # Klopt
 
-        response = httpx.put(f"{BASE_URL}/{1}", json=self.WrongDummyItem_group, headers=self.headerlist[0])
+        response = httpx.put(
+            f"{BASE_URL}/{1}", json=self.WrongDummyItem_group, headers=self.headerlist[0])
         assert response.status_code == 400 or response.status_code == 422
         # Klopt niet.
         self.restore_original_data()
 
     def test_remove_item_group(self):
-        response = httpx.post(f"{BASE_URL}", json=self.DummyItem_group, headers=self.headerlist[0])
-        response = httpx.delete(f"{BASE_URL}/{300}", headers=self.headerlist[0])
+        response = httpx.post(
+            f"{BASE_URL}", json=self.DummyItem_group, headers=self.headerlist[0])
+        response = httpx.delete(f"{BASE_URL}/{300}",
+                                headers=self.headerlist[0])
         assert response.status_code == 200
         # 500 once again
 
