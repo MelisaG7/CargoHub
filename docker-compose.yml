@@ -8,4 +8,6 @@ services:
     volumes:
       - ./api:/api 
       - ./data:/api/data  # uses the data files locally since docker image doesnt contain data files
+    env_file:
+    - .env 
     command: python main.py  # Start the app
