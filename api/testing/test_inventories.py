@@ -89,10 +89,8 @@ class TestInventories:
                           self.inventories.inventory_database[1]]
         # Thunder/api gebruikt nooit deze methode maar automatisch
         # test_get_inventory(id)
-
-        # test niet bestaande item ID
-        result = self.inventories.get_inventories_for_item("P00000018")
-        assert result == []
+        with pytest.raises(fastapi.HTTPException):
+            self.inventories.get_inventories_for_item("Abrakadabra")
 
     def test_get_items_for_inventory(self):
         # result["total_expected"] += x["total_expected"]

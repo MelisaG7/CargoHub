@@ -98,9 +98,6 @@ class TestEndpointsInventories:
             # Dit geeft mij 200 ipv 404
     # Deze methode werkt half alleen met headerlist[0] juiste ids.
 
-    def test_get_inventories_for_item():
-        return
-
     def test_get_inventory_totals_for_item(self):
         item_id = "P000001"
         response = httpx.get(f"http://localhost:3000/api/v1/items/{item_id}/inventory/totals", headers=self.headerlist[0])
