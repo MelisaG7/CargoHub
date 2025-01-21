@@ -46,10 +46,16 @@ jobs:
           pip install flake8 pytest pytest-cov fastapi uvicorn
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Start API server
+        env:
+          API_KEY_1: ${{ secrets.API_KEY_1 }}
+          BASE_URL: ${{ secrets.BASE_URL }}
         run: |
           python api/main.py &  # Adjust the path to your server script
           sleep 5  # Allow time for the server to start
       - name: Test with pytest
+        env:
+          API_KEY_1: ${{ secrets.API_KEY_1 }}
+          BASE_URL: ${{ secrets.BASE_URL }}
         run: |
           # pytest
           # pytest --cov --cov-report term --cov-report xml:coverage.xml
