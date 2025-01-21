@@ -57,6 +57,7 @@ jobs:
       - name: Start API server
         env:
           API_KEY_1: ${{ secrets.API_KEY_1 }}
+          API_KEY_2: ${{ secrets.API_KEY_2 }}
         run: |
           python api/main.py &  # Adjust the path to your server script
           sleep 5  # Allow time for the server to start
@@ -64,6 +65,7 @@ jobs:
       - name: Test with pytest
         env:
           API_KEY_1: ${{ secrets.API_KEY_1 }}
+          API_KEY_2: ${{ secrets.API_KEY_2 }}
         run: |
           coverage run -m pytest
 
