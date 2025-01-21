@@ -1,5 +1,5 @@
 import httpx
-
+import os
 
 BASE_URL = "http://localhost:3000/api/v1"
 
@@ -13,8 +13,9 @@ def test_get_transfers():
 
 
 def test_get_one_transfers():
+    api_key = os.getenv("API_KEY_1")
     headers = {
-        "api_key": ""
+        "api_key": api_key
     }
     response = httpx.get(f"{BASE_URL}/transfers/10", headers=headers)
     assert response.json()["reference"] == "TR00010"
