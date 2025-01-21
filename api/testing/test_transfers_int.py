@@ -1,12 +1,17 @@
 import httpx
+import os
+from dotenv import load_dotenv
 
+# Laad lokaal de .env-variabelen
+if not os.getenv("GITHUB_ACTIONS"):  # Controleer of de tests lokaal draaien
+    load_dotenv()
 
 BASE_URL = "http://localhost:3000/api/v1"
 
 
 def test_get_transfers():
     headers = {
-        "api_key": "a1b2c3d4e5"
+        "api_key": os.getenv("API_KEY_1")
     }
     response = httpx.get(f"{BASE_URL}/transfers", headers=headers)
     assert response.status_code == 200
@@ -14,7 +19,7 @@ def test_get_transfers():
 
 def test_get_one_transfers():
     headers = {
-        "api_key": "a1b2c3d4e5"
+        "api_key": os.getenv("API_KEY_1")
     }
     response = httpx.get(f"{BASE_URL}/transfers/10", headers=headers)
     assert response.json()["reference"] == "TR00010"
@@ -23,7 +28,7 @@ def test_get_one_transfers():
 
 def test_add_transfers():
     headers = {
-        "api_key": "a1b2c3d4e5"
+        "api_key": os.getenv("API_KEY_1")
     }
     new_transfer = {
         "id": 800000,
@@ -61,7 +66,7 @@ def test_add_transfers():
 
 def test_delete_transfers():
     headers = {
-        "api_key": "f6g7h8i9j0"
+        "api_key": os.getenv("API_KEY_2")
     }
 
     response = httpx.delete(f"{BASE_URL}/transfers/8000", headers=headers)
