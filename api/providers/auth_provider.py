@@ -1,13 +1,17 @@
 from fastapi import Request, HTTPException
 from fastapi.responses import JSONResponse
+import os
 
 
 class MiddleWare:
 
     def __init__(self):
+        if not os.getenv("GITHUB_ACTIONS"):
+            from dotenv import load_dotenv
+            load_dotenv()
         self.API_KEYS = {
-            "api_key_admin": "a1b2c3d4e5",
-            "api_key_user": "f6g7h8i9j0"
+            "api_key_admin": os.getenv("API_KEY_1"),
+            "api_key_user": os.getenv("API_KEY_2")
         }
 
     async def api_key_validator(self, request: Request, call_next):

@@ -1,30 +1,41 @@
 import httpx
-
+import os
 # Replace with your actual API base URL
 BASE_URL = "http://localhost:3000/api/v1"
 
 
+def get_api_headers(key_name="API_KEY_1"):
+    """
+    Haalt de headers op met de juiste API-key.
+    :param key_name: De naam van de API-key in de omgeving (bijv. API_KEY_1 of API_KEY_2).
+    """
+    # Laad .env lokaal als je niet in GitHub Actions bent
+    if not os.getenv("GITHUB_ACTIONS"):
+        from dotenv import load_dotenv
+        load_dotenv()
+
+    # Haal de API-key uit de omgeving
+    api_key = os.getenv(key_name)
+
+    # Maak de headers aan
+    return {"api_key": api_key}
+
+
 def test_get_suppliers():
-    headers = {
-        "api_key": "a1b2c3d4e5"
-    }
+    headers = get_api_headers("API_KEY_1")
     response = httpx.get(f"{BASE_URL}/suppliers", headers=headers)
     assert response.status_code == 200
 
 
 def test_get_one_suppliers():
-    headers = {
-        "api_key": "a1b2c3d4e5"
-    }
+    headers = get_api_headers("API_KEY_1")
     response = httpx.get(f"{BASE_URL}/suppliers/41", headers=headers)
     assert response.json()["code"] == "SUP0041"
     assert response.status_code == 200
 
 
 def test_add_delete_suppliers():
-    headers = {
-        "api_key": "a1b2c3d4e5"
-    }
+    headers = get_api_headers("API_KEY_1")
     new_suppliers = {
         "id": 910,
         "code": "SUP0041",
