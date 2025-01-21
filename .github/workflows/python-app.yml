@@ -22,8 +22,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install flake8
+          pip install flake8 safety
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Check for dependency vulnerabilities
+        run: |
+          safety check --full-report
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
@@ -43,8 +46,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install flake8 pytest pytest-cov fastapi uvicorn
+          pip install flake8 pytest pytest-cov fastapi uvicorn safety
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Check for dependency vulnerabilities
+        run: |
+          safety check --full-report
       - name: Start API server
         env:
           API_KEY_1: ${{ secrets.API_KEY_1 }}
@@ -99,6 +105,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
+        # login is nu onnodig omdat we geen online server hebben maar docker lokaal draaien
       - name: Log in to Docker
         uses: docker/login-action@v2
         with:
