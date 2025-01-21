@@ -7,7 +7,7 @@ import fastapi
 class TestInventories:
 
     def setup_method(self):
-        self.inventories = Inventories("./data/", True)
+        self.inventories = Inventories("", True)
         self.inventories.inventory_database = [
             {
                 "id": 13,
