@@ -1,7 +1,7 @@
 import pytest
 import httpx
 import json
-
+import os
 BASE_URL = "http://localhost:3000/api/v1/inventories"
 
 
@@ -9,14 +9,14 @@ class TestEndpointsInventories:
 
     @pytest.fixture(autouse=True)
     def setup_teardown(self):
+        if not os.getenv("GITHUB_ACTIONS"):
+            from dotenv import load_dotenv
+            load_dotenv()
+
+        # Laad de API-keys dynamisch uit de omgeving
         self.headerlist = [
-            {
-                "api_key": "a1b2c3d4e5"
-            },
-            {
-                "api_key": "f6g7h8i9j0"
-            }
-        ]
+            {"api_key": os.getenv("API_KEY_1")},
+            {"api_key": os.getenv("API_KEY_2")}]
         self.ids = [1, 20, 50, 100]
         self.WrongIds = [-1, -20, 1.25, "hundred"]
         self.DummyInventory = {
@@ -71,7 +71,6 @@ class TestEndpointsInventories:
         self.restore_original_data()
         yield
 
-
     def test_get_inventories(self):
         response = httpx.get(f"{BASE_URL}", headers=self.headerlist[0])
         assert response.status_code == 200
@@ -83,7 +82,8 @@ class TestEndpointsInventories:
 
     def test_get_inventory(self):
         for Id in self.ids:
-            response = httpx.get(f"{BASE_URL}/{Id}", headers=self.headerlist[0])
+            response = httpx.get(f"{BASE_URL}/{Id}",
+                                 headers=self.headerlist[0])
             assert response.status_code == 200
             assert response.json()["id"] == Id
             # Dit werkt
@@ -93,52 +93,62 @@ class TestEndpointsInventories:
         # Dit geeft mij ook 500 status code. Ik weet niet waarom
 
         for Id in self.WrongIds:
-            response = httpx.get(f"{BASE_URL}/{Id}", headers=self.headerlist[0])
+            response = httpx.get(f"{BASE_URL}/{Id}",
+                                 headers=self.headerlist[0])
             assert response.status_code == 400 or response.status_code == 422
             # Dit geeft mij 200 ipv 404
     # Deze methode werkt half alleen met headerlist[0] juiste ids.
 
     def test_post_inventory(self):
-        response = httpx.post(f"{BASE_URL}", json=self.DummyInventory, headers=self.headerlist[0])
+        response = httpx.post(
+            f"{BASE_URL}", json=self.DummyInventory, headers=self.headerlist[0])
         assert response.status_code == 201
         inventory_data = self.load_inventory_data(self.DummyInventory["id"])
         assert inventory_data["description"] == self.DummyInventory["description"]
         # Dit is goed, maar once again is alleen de created_at en updated_at anders.
         # Daarom heb ik het even veranderd naar alleen op 1 key nakijken.
 
-        response = httpx.post(f"{BASE_URL}", json=self.DummyInventory, headers=self.headerlist[1])
+        response = httpx.post(
+            f"{BASE_URL}", json=self.DummyInventory, headers=self.headerlist[1])
         assert response.status_code == 403
         # Hmmm dit hoort gewoon 403 te zijn maar ik krijg 500.
         # Is er iest mis misschien met headerlist[1]? Nee klopt gewoon
 
-        response = httpx.post(f"{BASE_URL}", json=self.WrongDummyInventory, headers=self.headerlist[0])
+        response = httpx.post(
+            f"{BASE_URL}", json=self.WrongDummyInventory, headers=self.headerlist[0])
         assert response.status_code == 400 or response.status_code == 422
         self.restore_original_data()
         # En dit is 201 ipv 400, maar de test zelf lukt gwoon
 
     def test_put_inventory(self):
-        response = httpx.post(f"{BASE_URL}", json=self.DummyInventory, headers=self.headerlist[0])
-        response = httpx.put(f"{BASE_URL}/{self.DummyInventory['id']}", json=self.DummyInventory, headers=self.headerlist[0])
+        response = httpx.post(
+            f"{BASE_URL}", json=self.DummyInventory, headers=self.headerlist[0])
+        response = httpx.put(
+            f"{BASE_URL}/{self.DummyInventory['id']}", json=self.DummyInventory, headers=self.headerlist[0])
         assert response.status_code == 200
         # Klopt
-        updated_inventory_data = self.load_inventory_data(self.DummyInventory["id"])
+        updated_inventory_data = self.load_inventory_data(
+            self.DummyInventory["id"])
         assert updated_inventory_data['item_id'] == self.DummyInventory['item_id']
         # Zodra ik de Id niet meer kan vinden, werkt het niet de json
 
-        response = httpx.put(f"{BASE_URL}/{self.DummyInventory['id']}", json=self.DummyInventory, headers=self.headerlist[1])
+        response = httpx.put(
+            f"{BASE_URL}/{self.DummyInventory['id']}", json=self.DummyInventory, headers=self.headerlist[1])
         assert response.status_code == 403
         # Ook weer 500 out of nowhere. Pisses me off fr
         self.restore_original_data()
 
     def test_remove_inventory(self):
-        response = httpx.delete(f"{BASE_URL}/{11720}", headers=self.headerlist[0])
+        response = httpx.delete(
+            f"{BASE_URL}/{11720}", headers=self.headerlist[0])
         assert response.status_code == 200
         # Come on man...Waarom die 500?
         response = httpx.get(f"{BASE_URL}/{11720}", headers=self.headerlist[0])
         assert response.status_code == 404
         # OOk 500 WAAROOMMMMM
 
-        response = httpx.delete(f"{BASE_URL}/{11710}", headers=self.headerlist[1])
+        response = httpx.delete(
+            f"{BASE_URL}/{11710}", headers=self.headerlist[1])
         assert response.status_code == 403
         # Als ik deze errors heb gefixt of in de proces daarvan dan ben ik allang long gone in de mental hospital
         self.restore_original_data()
