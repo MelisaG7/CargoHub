@@ -13,6 +13,9 @@ def test_get_transfers():
 
 
 def test_get_one_transfers():
+    headers = {
+        "api_key": ""
+    }
     response = httpx.get(f"{BASE_URL}/transfers/10", headers=headers)
     assert response.json()["reference"] == "TR00010"
     assert response.status_code == 200
