@@ -27,7 +27,7 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Check for dependency vulnerabilities
         run: |
-          safety scan --full-report
+          safety check --full-report
 
       - name: Lint with flake8
         run: |
@@ -52,7 +52,7 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Check for dependency vulnerabilities
         run: |
-          safety scan --full-report
+          safety check --full-report
       - name: Start API server
         env:
           API_KEY_1: ${{ secrets.API_KEY_1 }}
