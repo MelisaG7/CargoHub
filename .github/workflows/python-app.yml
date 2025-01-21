@@ -117,7 +117,7 @@ jobs:
 
           
     #commented out to test the deployment
-    # environment:
-    #   name: ${{ github.ref_name == 'main' && 'Production' || github.ref_name == 'staging' && 'Staging' || 'Development' }}
+    environment:
+      name: ${{ github.ref_name == 'main' && 'Production' || github.ref_name == 'staging' && 'Staging' || 'Development' }}
 
   
