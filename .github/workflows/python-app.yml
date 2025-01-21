@@ -6,7 +6,6 @@ on:
       - main  # Target Production environment
       - staging  # Target Staging environment
       - develop  # Target Development environment
-      - pipeline-docker-login # for testing
 
 jobs:
   development:
