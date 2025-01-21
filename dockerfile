@@ -7,6 +7,11 @@ WORKDIR /api
 # Copy application code
 # COPY ./api ./
 
+# Install Python dependencies directly and run safety check after installing dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir setuptools==75.8.0 && \
+    pip install --no-cache-dir fastapi uvicorn pytest flake8 pytest-cov safety && \
+    safety check --full-report   
 
 # Expose application port (if required)
 EXPOSE 3000

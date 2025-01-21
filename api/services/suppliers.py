@@ -23,6 +23,8 @@ class Suppliers(Base):
         self.router.add_api_route(
             "/suppliers/{supplier_id}", self.get_supplier, methods=["GET"])
         self.router.add_api_route(
+            "/suppliers/{supplier_id}/items", self.get_items_supplies, methods=["GET"])
+        self.router.add_api_route(
             "/suppliers", self.add_supplier, methods=["POST"])
         self.router.add_api_route(
             "/suppliers/{supplier_id}", self.update_supplier, methods=["PUT"])
@@ -46,6 +48,20 @@ class Suppliers(Base):
             if supplier["id"] == supplier_id:
                 return supplier
         return None
+
+    def get_items_supplies(self, supplier_id: int):
+        from services.items import Items
+        try:
+            items_obj = Items("./data/", False)
+            items = items_obj.get_items_for_supplier(supplier_id)
+
+            if not items:  # Controleer of de lijst leeg is
+                return JSONResponse(content="No items found for the given supplier.", status_code=404)
+
+            return items
+
+        except Exception as e:
+            print(e)
 
     def add_supplier(self, supplier: Supplier):
         """Adds a new supplier to the data with created and updated timestamps.

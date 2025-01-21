@@ -22,13 +22,20 @@ class Inventories(Base):
         self.load(is_debug)
         self.router = APIRouter()
 
-        self.router.add_api_route("/inventories", self.get_inventories, methods=["GET"])
-        self.router.add_api_route("/inventories/{inventory_id}", self.get_inventory, methods=["GET"])
-        self.router.add_api_route("/inventories", self.add_inventory, methods=["POST"])
-        self.router.add_api_route("/inventories/{inventory_id}", self.update_inventory, methods=["PUT"])
-        self.router.add_api_route("/inventories/{inventory_id}", self.remove_inventory, methods=["DELETE"])
-        self.router.add_api_route("/items/{item_id}/inventory", self.get_inventories_for_item, methods=["GET"])
-        self.router.add_api_route("/items/{item_id}/inventory/totals", self.get_inventory_totals_for_item, methods=["GET"])
+        self.router.add_api_route(
+            "/inventories", self.get_inventories, methods=["GET"])
+        self.router.add_api_route(
+            "/inventories/{inventory_id}", self.get_inventory, methods=["GET"])
+        self.router.add_api_route(
+            "/inventories", self.add_inventory, methods=["POST"])
+        self.router.add_api_route(
+            "/inventories/{inventory_id}", self.update_inventory, methods=["PUT"])
+        self.router.add_api_route(
+            "/inventories/{inventory_id}", self.remove_inventory, methods=["DELETE"])
+        self.router.add_api_route(
+            "/items/{item_id}/inventory", self.get_inventories_for_item, methods=["GET"])
+        self.router.add_api_route(
+            "/items/{item_id}/inventory/totals", self.get_inventory_totals_for_item, methods=["GET"])
 
     @staticmethod
     def FoutHandling():
@@ -59,15 +66,13 @@ class Inventories(Base):
             The user receives a 200 status code and a 'null',
             written in the terminal
             '''
-        raise HTTPException(status_code=404, detail=f"Inventory with id {inventory_id} not found in the database")
+        raise HTTPException(
+            status_code=404, detail=f"Inventory with id {inventory_id} not found in the database")
 
-    # Hahah vergeten welke endpoint ik nodig heb voor dit + geen fouthandling geimplementeerd
-    # Ewa ja
     def get_inventories_for_item(self, item_id: str):
         if not self.FoutHandling().check_get_inventory_for_item(item_id):
             raise HTTPException(status_code=400, detail="Invalid item id.")
         # Skip deze fouthandling voor even want wordt toch even overgeslagen
-        # This method searches for inventory objects with item_id
         found_inventories = []
         for inventory in self.inventory_database:
             '''
@@ -115,7 +120,8 @@ class Inventories(Base):
 
     def add_inventory(self, inventory: Inventory):
         if not self.FoutHandling().check_add_inventory(inventory, self):
-            raise HTTPException(status_code=400, detail="Invalid inventory body")
+            raise HTTPException(
+                status_code=400, detail="Invalid inventory body")
         '''
         This method adds/replaces the value of the 'created_at' and
         "updated_at" keys with the current date and time.
@@ -130,7 +136,8 @@ class Inventories(Base):
 
     def update_inventory(self, inventory_id: int, inventory: Inventory):
         if not self.FoutHandling().check_put_inventory(inventory, inventory_id):
-            raise HTTPException(status_code=400, detail="Invalid id or inventory body")
+            raise HTTPException(
+                status_code=400, detail="Invalid id or inventory body")
         '''
         The method replaces/adds the value of 'updated_at' of the
         passed inventory object with the current date and time 
@@ -150,17 +157,18 @@ class Inventories(Base):
                 return JSONResponse(status_code=200, content="inventory succesfully updated")
 
     def remove_inventory(self, inventory_id: int):
-            if not self.FoutHandling().check_remove_inventory(inventory_id):
-                raise HTTPException(status_code=400, detail="Invalid inventory id")
-            for inventory in self.inventory_database:
-                # The method loops through the database in search of an object
-                # that contains the same id as the one passed as a paramter
-                if inventory["id"] == inventory_id:
-                    # Then it deletes the found inventory object
-                    self.inventory_database.remove(inventory)
-                    self.save()
-                    return JSONResponse(status_code=200, content="Inventory successfully removed from the database")
-            raise HTTPException(status_code=404, detail=f"Inventory with id {inventory_id} not found in the database")
+        if not self.FoutHandling().check_remove_inventory(inventory_id):
+            raise HTTPException(status_code=400, detail="Invalid inventory id")
+        for inventory in self.inventory_database:
+            # The method loops through the database in search of an object
+            # that contains the same id as the one passed as a paramter
+            if inventory["id"] == inventory_id:
+                # Then it deletes the found inventory object
+                self.inventory_database.remove(inventory)
+                self.save()
+                return JSONResponse(status_code=200, content="Inventory successfully removed from the database")
+        raise HTTPException(
+            status_code=404, detail=f"Inventory with id {inventory_id} not found in the database")
 
     def load(self, is_debug):
         if is_debug:

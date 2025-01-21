@@ -2,7 +2,9 @@ import json
 from services.base import Base
 from fastapi import APIRouter, HTTPException
 from models.Models import Transfer
+from models.Models import Inventory
 from fastapi.responses import JSONResponse
+from services.inventories import Inventories
 
 TRANSFERS = []
 
@@ -30,7 +32,51 @@ class Transfers(Base):
         self.router.add_api_route(
             "/transfers/{transfer_id}", self.update_transfer, methods=["PUT"])
         self.router.add_api_route(
+            "/transfers/{transfer_id}/commit", self.commit_transfer, methods=["PUT"])
+        self.router.add_api_route(
             "/transfers/{transfer_id}", self.remove_transfer, methods=["DELETE"])
+
+    def commit_transfer(self, transfer_id: int, transfer_: Transfer):
+        """Commit a transfer by updating inventory quantities and changing transfer status."""
+        # Zoek de transfer
+        transfer = next((t for t in self.data if t["id"] == transfer_id), None)
+
+        if not transfer:
+            return JSONResponse(status_code=404, content="Transfer not found")
+
+        # Verwerk de transfer
+        for item in transfer["items"]:
+            item_id = item["item_id"]
+            amount = item["amount"]
+
+            # Update de inventaris op de bronlocatie
+            inventory_obj = Inventories("./data/", False)
+            inventories_from = inventory_obj.get_inventories_for_item(
+                item_id)
+
+            for inventory in inventories_from:
+                if transfer["transfer_from"] in inventory["locations"]:
+                    inventory["total_on_hand"] -= amount
+                    inventory_object = Inventory.model_validate(inventory)
+                    inventory_obj.update_inventory(
+                        inventory["id"], inventory_object)
+
+            inventories_to = inventory_obj.get_inventories_for_item(
+                item_id)
+            for inventory in inventories_to:
+                if transfer["transfer_to"] in inventory["locations"]:
+                    inventory["total_on_hand"] += amount
+                    inventory_object = Inventory.model_validate(inventory)
+                    inventory_obj.update_inventory(
+                        inventory["id"], inventory_object)
+
+        # Wijzig de status van de transfer naar "Processed"
+        transfer["transfer_status"] = "Processed"
+        transfer["updated_at"] = self.get_timestamp()
+        self.save()
+
+        # Retourneer een bevestiging
+        return JSONResponse(status_code=200, content="Transfer successfully committed")
 
     def get_transfers(self):
         """Returns a list of all transfer records."""
@@ -50,7 +96,7 @@ class Transfers(Base):
                 return transfer
         return None
 
-    def get_items_in_transfer(self, transfer_id):
+    def get_items_in_transfer(self, transfer_id: int):
         """Retrieves the items within a specified transfer.
 
         Args:
