@@ -1,10 +1,7 @@
 import httpx
 import os
-from dotenv import load_dotenv
 
-# Laad lokaal de .env-variabelen
-if not os.getenv("GITHUB_ACTIONS"):  # Controleer of de tests lokaal draaien
-    load_dotenv()
+
 
 BASE_URL = "http://localhost:3000/api/v1"
 
