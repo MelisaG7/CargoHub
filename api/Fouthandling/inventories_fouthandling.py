@@ -1,15 +1,20 @@
 from models.Models import Inventory
-from services.locations import Locations
+
+
 class InventoriesFoutHandling:
 
     def __inti__(self):
         self.somthing = "nothing in here idk"
-        self.locations = Locations("./data/", False)
 
     @staticmethod
     def inventories():
         from services.inventories import Inventories
         return Inventories("./data/", False)
+
+    @staticmethod
+    def locations():
+        from services.locations import Locations
+        return Locations("./data/", False)
 
     def check_valid_id(self, inventory_id: int):
         # checks on negatieve ids
@@ -39,11 +44,15 @@ class InventoriesFoutHandling:
         return self.check_get_inventory_for_item(item_id)
 
     def check_locations(self, inventory: Inventory):
-        for location in inventory.locations:
-            location_ids = [loc["location_id"] for loc in self.locations.data]
-            if location["location_id"] not in location_ids:
-                return False
-        return True
+        try:
+            locations = [loc["id"] for loc in self.locations().data]
+            for location in inventory.locations:
+                if location not in locations:
+                    return False
+            return True
+        except Exception as e:
+            print(e)  # Replace with appropriate logging
+            return False  # Optionally return a default value or re-raise the exception
 
     def check_add_inventory(self, inventory: Inventory, inventories):
         if not self.check_locations(inventory):
