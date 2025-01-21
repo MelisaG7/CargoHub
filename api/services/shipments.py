@@ -1,7 +1,8 @@
 import json
-
-from models.base import Base
-# from providers import data_provider
+from services.base import Base
+from fastapi import APIRouter, HTTPException
+from models.Models import Shipment
+from fastapi.responses import JSONResponse
 
 SHIPMENTS = []
 
@@ -20,7 +21,23 @@ class Shipments(Base):
         """
         self.data_path = root_path + "shipments.json"
         self.load(is_debug)
-    
+        self.router = APIRouter()
+
+        self.router.add_api_route(
+            "/shipments/", self.get_shipments, methods=["GET"])
+        self.router.add_api_route(
+            "/shipments/{shipment_id}", self.get_shipment, methods=["GET"])
+        self.router.add_api_route(
+            "/shipments/{shipment_id}", self.get_items_in_shipment, methods=["GET"])
+        self.router.add_api_route(
+            "/shipments/", self.add_shipment, methods=["POST"])
+        self.router.add_api_route(
+            "/shipments/{shipment_id}", self.update_shipment, methods=["PUT"])
+        self.router.add_api_route(
+            "/shipments/{shipment_id}", self.update_items_in_shipment, methods=["PUT"])
+        self.router.add_api_route(
+            "/shipments/{shipment_id}", self.remove_shipment, methods=["DELETE"])
+
     def DataProvider():
         from providers import data_provider
         return data_provider
@@ -29,12 +46,12 @@ class Shipments(Base):
         """Returns a list of all shipments stored in the data."""
         return self.data
 
-    def get_shipment(self, shipment_id):
+    def get_shipment(self, shipment_id: int):
         """Finds a specific shipment by ID and returns it as a dictionary.
-        
+
         Args:
             shipment_id (int): ID of the shipment to retrieve.
-        
+
         Returns:
             dict: The shipment data if found, otherwise None.
         """
@@ -43,12 +60,12 @@ class Shipments(Base):
                 return shipment
         return None
 
-    def get_items_in_shipment(self, shipment_id):
+    def get_items_in_shipment(self, shipment_id: int):
         """Fetches all items within a specific shipment.
-        
+
         Args:
             shipment_id (int): ID of the shipment whose items to retrieve.
-        
+
         Returns:
             list: A list of items in the shipment, or None if the shipment does not exist.
         """
@@ -57,27 +74,29 @@ class Shipments(Base):
                 return shipment["items"]
         return None
 
-    def add_shipment(self, shipment):
+    def add_shipment(self, shipment: Shipment):
         """Adds a new shipment to the data with created and updated timestamps.
-        
+
         Args:
             shipment (dict): The data of the shipment to add.
         """
-        shipment["created_at"] = self.get_timestamp()
-        shipment["updated_at"] = self.get_timestamp()
+        shipment_dictionary = shipment.model_dump()
+        shipment_dictionary["created_at"] = self.get_timestamp()
+        shipment_dictionary["updated_at"] = self.get_timestamp()
         self.data.append(shipment)
 
-    def update_shipment(self, shipment_id, shipment):
+    def update_shipment(self, shipment_id: int, shipment: Shipment):
         """Updates an existing shipment based on the shipment ID.
-        
+
         Args:
             shipment_id (int): ID of the shipment to update.
             shipment (dict): The updated shipment data.
         """
-        shipment["updated_at"] = self.get_timestamp()
+        shipment_dictionary = shipment.model_dump()
+        shipment_dictionary["updated_at"] = self.get_timestamp()
         for index in range(len(self.data)):
             if self.data[index]["id"] == shipment_id:
-                self.data[index] = shipment
+                self.data[index] = shipment_dictionary
                 break
 
     def update_items_in_shipment(self, shipment_id, items):
@@ -100,7 +119,8 @@ class Shipments(Base):
                     break
 
             if not item_still_exists:
-                inventories = self.DataProvider().fetch_inventory_pool().get_inventories_for_item(current_item["item_id"])
+                inventories = self.DataProvider().fetch_inventory_pool(
+                ).get_inventories_for_item(current_item["item_id"])
                 highest_ordered = -1
                 selected_inventory = None
 
@@ -112,9 +132,11 @@ class Shipments(Base):
                 if selected_inventory:
                     selected_inventory["total_ordered"] -= current_item["amount"]
                     selected_inventory["total_expected"] = (
-                        selected_inventory["total_on_hand"] + selected_inventory["total_ordered"]
+                        selected_inventory["total_on_hand"] +
+                        selected_inventory["total_ordered"]
                     )
-                    self.DataProvider().fetch_inventory_pool().update_inventory(selected_inventory["id"], selected_inventory)
+                    self.DataProvider().fetch_inventory_pool().update_inventory(
+                        selected_inventory["id"], selected_inventory)
 
         # Add or update items in the shipment
         for updated_item in items:
@@ -126,7 +148,8 @@ class Shipments(Base):
 
             if matching_item:
                 # Update inventory for the existing item
-                inventories = self.DataProvider().fetch_inventory_pool().get_inventories_for_item(matching_item["item_id"])
+                inventories = self.DataProvider().fetch_inventory_pool(
+                ).get_inventories_for_item(matching_item["item_id"])
                 highest_ordered = -1
                 selected_inventory = None
 
@@ -136,30 +159,35 @@ class Shipments(Base):
                         selected_inventory = inventory
 
                 if selected_inventory:
-                    selected_inventory["total_ordered"] += updated_item["amount"] - matching_item["amount"]
+                    selected_inventory["total_ordered"] += updated_item["amount"] - \
+                        matching_item["amount"]
                     selected_inventory["total_expected"] = (
-                        selected_inventory["total_on_hand"] + selected_inventory["total_ordered"]
+                        selected_inventory["total_on_hand"] +
+                        selected_inventory["total_ordered"]
                     )
-                    self.DataProvider().fetch_inventory_pool().update_inventory(selected_inventory["id"], selected_inventory)
+                    self.DataProvider().fetch_inventory_pool().update_inventory(
+                        selected_inventory["id"], selected_inventory)
 
         # Replace the shipment's items with the updated items
         shipment["items"] = items
         self.update_shipment(shipment_id, shipment)
 
-
     def remove_shipment(self, shipment_id):
         """Removes a shipment from the data based on the shipment ID.
-        
+
         Args:
             shipment_id (int): ID of the shipment to remove.
         """
-        for shipment in self.data:
-            if shipment["id"] == shipment_id:
-                self.data.remove(shipment)
+        try:
+            for shipment in self.data:
+                if shipment["id"] == shipment_id:
+                    self.data.remove(shipment)
+        except Exception as e:
+            print(e)
 
     def load(self, is_debug):
         """Loads shipment data from JSON or debug data.
-        
+
         Args:
             is_debug (bool): If True, loads debug data instead of the JSON file.
         """

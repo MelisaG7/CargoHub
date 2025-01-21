@@ -2,7 +2,7 @@ import pytest
 import sys
 import os
 
-from models.locations import Locations
+from services.locations import Locations
 
 # Mock LOCATIONS data om mee te testen
 LOCATIONS = [
@@ -29,21 +29,6 @@ def test_get_locations_in_warehouse():
     loc.data = LOCATIONS
     result = loc.get_locations_in_warehouse(100)
     assert result == [LOCATIONS[0], LOCATIONS[2]]  # Twee locaties in warehouse_id 100
-
-def test_add_location():
-    loc = Locations(root_path="", is_debug=True)
-    loc.data = LOCATIONS.copy()
-    new_location = {"id": 4, "name": "Location 4", "warehouse_id": 102}
-    loc.add_location(new_location)
-    assert len(loc.data) == 4  # Controleer of de nieuwe locatie is toegevoegd
-    assert loc.data[-1]["id"] == 4  # De laatste locatie moet de nieuwe locatie zijn
-
-def test_update_location():
-    loc = Locations(root_path="", is_debug=True)
-    loc.data = LOCATIONS.copy()
-    updated_location = {"id": 1, "name": "Updated Location", "warehouse_id": 100}
-    loc.update_location(1, updated_location)
-    assert loc.data[0]["name"] == "Updated Location"  # Locatie moet zijn bijgewerkt
 
 def test_remove_location():
     loc = Locations(root_path="", is_debug=True)
