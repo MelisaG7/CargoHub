@@ -1,6 +1,7 @@
 import httpx
 import os
 
+
 BASE_URL = "http://localhost:3000/api/v1"
 
 
@@ -13,6 +14,10 @@ def test_get_transfers():
 
 
 def test_get_one_transfers():
+    # Import en laad de .env-variabelen lokaal
+    if not os.getenv("GITHUB_ACTIONS"):
+        from dotenv import load_dotenv
+        load_dotenv()
     api_key = os.getenv("API_KEY_1")
     headers = {
         "api_key": api_key
