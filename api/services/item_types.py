@@ -75,7 +75,7 @@ class ItemTypes(Base):
                 if item_type["id"] == item_type_id:
                     return item_type
 
-            raise HTTPException(status_code=404,
+            raise HTTPException(status_code=204,
                                 detail=f"Itemline with id {item_type_id} was not found")
         except Exception as e:
             print(e)
