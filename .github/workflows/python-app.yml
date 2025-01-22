@@ -3,9 +3,8 @@ name: Python application
 on:
   push:
     branches:
-      - main  # Target Production environment
-      - staging  # Target Staging environment
-      - develop  # Target Development environment
+      - main  
+      - develop  
 
 jobs:
   development:
