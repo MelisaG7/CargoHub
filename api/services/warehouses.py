@@ -64,6 +64,7 @@ class Warehouses(Base):
         warehousedict["created_at"] = self.get_timestamp()
         warehousedict["updated_at"] = self.get_timestamp()
         self.data.append(warehousedict)
+        self.save()
         try:
             return JSONResponse(content="Warehouse has been added", status_code=201)
         except Exception as e:
@@ -83,6 +84,7 @@ class Warehouses(Base):
             try:
                 if warehouses["id"] == warehouse_id:
                     warehouses.update(warehousedict)
+                    self.save()
             except Exception as e:
                 print(e)
 
@@ -97,6 +99,7 @@ class Warehouses(Base):
             for warehouse in self.data:
                 if warehouse["id"] == warehouse_id:
                     self.data.remove(warehouse)
+                    self.save()
         except Exception as e:
             print(e)
 

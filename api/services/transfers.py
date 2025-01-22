@@ -121,6 +121,7 @@ class Transfers(Base):
         transfer_dictionary["created_at"] = self.get_timestamp()
         transfer_dictionary["updated_at"] = self.get_timestamp()
         self.data.append(transfer_dictionary)
+        self.save()
         try:
             return JSONResponse(content="Transfer has been added", status_code=201)
         except Exception as e:
@@ -138,6 +139,7 @@ class Transfers(Base):
         for transfers in self.data:
             if transfers["id"] == transfer_id:
                 transfers.update(transfer_dictionary)
+                self.save()
                 return
 
     def remove_transfer(self, transfer_id: int):
@@ -149,6 +151,7 @@ class Transfers(Base):
         for transfer in self.data:
             if transfer["id"] == transfer_id:
                 self.data.remove(transfer)
+                self.save()
 
     def load(self, is_debug):
         """Loads transfer data from a JSON file or debug data if specified.
