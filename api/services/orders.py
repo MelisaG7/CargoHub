@@ -27,13 +27,6 @@ class Orders(Base):
             "/orders/{order_id}", self.get_order, methods=["GET"])
         # Check (moet nog nacontrole doen)
         self.router.add_api_route(
-<<<<<<< Updated upstream
-            "/orders/{order_id}", self.get_items_in_order, methods=["GET"])
-        self.router.add_api_route(
-            "/orders/{shipment_id}", self.get_orders_in_shipment, methods=["GET"])
-        self.router.add_api_route(
-            "/orders/{client_id}", self.get_orders_for_client, methods=["GET"])
-=======
             "/orders/{order_id}/items", self.get_items_in_order, methods=["GET"])
         # Moet nog nacontrole doen
         self.router.add_api_route(
@@ -42,23 +35,15 @@ class Orders(Base):
         self.router.add_api_route(
             "/clients/{client_id}/orders", self.get_orders_for_client, methods=["GET"])
         # Moet nog nacontrole doen
->>>>>>> Stashed changes
         self.router.add_api_route("/orders/", self.add_order, methods=["POST"])
         self.router.add_api_route(
             "/orders/{order_id}", self.update_order, methods=["PUT"])
         # Moet nog nacontrole doen
         self.router.add_api_route(
-<<<<<<< Updated upstream
-            "/orders/{order_id}", self.update_items_in_order, methods=["PUT"])
-        self.router.add_api_route(
-            "/orders/{order_id}", self.update_orders_in_shipment, methods=["PUT"])
-=======
             "/orders/{order_id}/items", self.update_items_in_order, methods=["PUT"])
         # Moet nog nacontrole doen
         self.router.add_api_route(
             "/shipments/{shipment_id}/orders", self.update_orders_in_shipment, methods=["PUT"])
-        # Check
->>>>>>> Stashed changes
         self.router.add_api_route(
             "/orders/{order_id}", self.remove_order, methods=["DELETE"])
 
@@ -93,11 +78,7 @@ class Orders(Base):
         for order in self.data:
             if order["id"] == order_id:
                 return order
-<<<<<<< Updated upstream
-        return None
-=======
         raise HTTPException(status_code=400, detail="invalid order id")
->>>>>>> Stashed changes
 
     def get_items_in_order(self, order_id: int):
         if not self.Fouthandling().check_get_order(order_id):
@@ -113,11 +94,7 @@ class Orders(Base):
         for order in self.data:
             if order["id"] == order_id:
                 return order["items"]
-<<<<<<< Updated upstream
-        return None
-=======
         raise HTTPException(status_code=400, detail="Invalid order id.")
->>>>>>> Stashed changes
 
     def get_orders_in_shipment(self, shipment_id):
         if not self.Fouthandling().check_get_orders_in_shipment(shipment_id):
@@ -162,18 +139,11 @@ class Orders(Base):
             order (dict): De gegevens van de bestelling om toe te voegen.
         """
         order_dictionary = order.model_dump()
-<<<<<<< Updated upstream
-        order_dictionary["created_at"] = self.get_timestamp()
-        order_dictionary["updated_at"] = self.get_timestamp()
-        self.data.append(order)
-=======
-        print(type(order_dictionary)) 
         order_dictionary["created_at"] = self.get_timestamp()
         order_dictionary["updated_at"] = self.get_timestamp()
         self.data.append(order_dictionary)
         self.save()
         return JSONResponse(content="order successfully added", status_code=201)
->>>>>>> Stashed changes
 
     def update_order(self, order_id: int, order: Order):
         if not self.Fouthandling().check_update_order(order_id, order):
@@ -189,13 +159,9 @@ class Orders(Base):
         for index in range(len(self.data)):
             if self.data[index]["id"] == order_id:
                 self.data[index] = order_dictionary
-<<<<<<< Updated upstream
-                break
-=======
                 self.save()
                 return JSONResponse(content="order is successfully updated", status_code=201)
         raise HTTPException(status_code=404, detail="order not found")
->>>>>>> Stashed changes
 
     def update_items_in_order(self, order_id, items: List[ItemFields] = Body(...)):
         if not self.Fouthandling().check_update_items_in_order(order_id, items):
@@ -288,21 +254,12 @@ class Orders(Base):
         Args:
             order_id (int): Het ID van de bestelling om te verwijderen.
         """
-<<<<<<< Updated upstream
-        try:
-            for order in self.data:
-                if order["id"] == order_id:
-                    self.data.remove(order)
-        except Exception as e:
-            print(e)
-=======
         for order in self.data:
             if order["id"] == order_id:
                 self.data.remove(order)
                 self.save()
                 return JSONResponse(content="Order successfully removed.", status_code=200)
         raise HTTPException(status_code=400, detail="Order not found")
->>>>>>> Stashed changes
 
     def load(self, is_debug):
         """Laadt de bestellingsgegevens uit een JSON-bestand of uit een debuglijst.
