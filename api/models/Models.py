@@ -1,4 +1,10 @@
 from pydantic import BaseModel
+from typing import List
+
+
+class ItemFields(BaseModel):
+    item_id: str
+    amount: int
 
 
 class Client(BaseModel):
@@ -149,7 +155,7 @@ class Order(BaseModel):
     total_discount: float
     total_tax: float
     total_surcharge: float
-    items: list   # {item_id: str, amount: int}
+    items: List[ItemFields]  # {item_id: str, amount: int}
 
 
 class Shipment(BaseModel):

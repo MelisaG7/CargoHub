@@ -51,8 +51,8 @@ class InventoriesFoutHandling:
                     return False
             return True
         except Exception as e:
-            print(e)  # Replace with appropriate logging
-            return False  # Optionally return a default value or re-raise the exception
+            print(e)
+            return False
 
     def check_add_inventory(self, inventory: Inventory, inventories):
         if not self.check_locations(inventory):

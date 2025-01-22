@@ -1,5 +1,7 @@
 import pytest
 from services.orders import Orders
+from fastapi import HTTPException
+
 
 # Mock ORDERS data om mee te testen
 ORDERS = [
@@ -19,13 +21,16 @@ def test_get_order():
     orders = Orders(root_path="", is_debug=True)
     orders.data = ORDERS
     assert orders.get_order(1) == ORDERS[0]  # Order 1 ophalen
-    assert orders.get_order(999) is None  # Niet-bestaande order moet None retourneren
+    with pytest.raises(HTTPException):
+        orders.get_order("Abrakadabra")
+    with pytest.raises(HTTPException):
+        orders.get_order(84298499)
 
 
 def test_get_orders_in_shipment():
     orders = Orders(root_path="", is_debug=True)
     orders.data = ORDERS
-    result = orders.get_orders_in_shipment(101)
+    result = orders.get_orders_in_shipment('101')
     assert result == [1]  # Order 1 is de enige in shipment_id 101
 
 
