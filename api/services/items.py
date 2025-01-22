@@ -106,7 +106,7 @@ class Items(Base):
             if item["uid"] == item_uid:
                 return item
         # return
-        raise HTTPException(status_code=404,
+        raise HTTPException(status_code=204,
                             detail=f"Itemline with id {item_uid} was not found")
 
 
@@ -177,22 +177,22 @@ class Items(Base):
 
         searchedline = item_lines.get_item_line(item.item_line)
         if searchedline is None:
-                            raise HTTPException(status_code=404,
+                            raise HTTPException(status_code=400,
                                 detail=f"Itemline with id {item.item_line} does not exist")
         
         searchedtype = item_types.get_item_type(item.item_type)
         if searchedtype is None:
-                            raise HTTPException(status_code=404,
+                            raise HTTPException(status_code=400,
                                 detail=f"Itemtype with id {item.item_type} does not exist")
         
         searchedgroup = item_groups.get_item_group(item.item_group)
         if searchedgroup is None: 
-             raise HTTPException(status_code=404,
+             raise HTTPException(status_code=400,
                                 detail=f"Item group with id {item.item_group} does not exist")
         
         searchedsupplierid = suppliers.get_supplier(item.supplier_id)
         if searchedsupplierid is None:
-             raise HTTPException(status_code=404,
+             raise HTTPException(status_code=400,
                                 detail=f"Supplier with id {item.supplier_id} does not exist")
 
         item_dict = item.model_dump()

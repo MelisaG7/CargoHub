@@ -1,6 +1,7 @@
 import pytest
 import httpx
 import os
+from models.Models import Shipment
 
 # Pas dit aan naar jouw server-URL
 BASE_URL = "http://localhost:3000/api/v1/shipments/"
@@ -16,12 +17,12 @@ class TestEndpointsShipments:
         # Laad de API-keys dynamisch uit de omgeving
         self.headerlist = [
             {"api_key": os.getenv("API_KEY_1")},
-            {"api_key": os.getenv("API_KEY_3")}]
+            {"api_key": os.getenv("API_KEY_2")}]
         # api_key 3 is een foutieve key om te testen op toegankelijkheid
         self.valid_shipment_id = 101  # shipment ID
         self.invalid_shipment_ids = [-1, -20, 1.25, "hundred"]
         self.new_shipment = {
-            "id": 690,
+            "id": 69000,
             "order_id": 690,
             "source_id": 29,
             "order_date": "2006-04-12",
@@ -58,6 +59,16 @@ class TestEndpointsShipments:
                 }
             ]
         }
+        self.new_items =[
+            {
+                "item_id": "P007435",
+                "amount": 23
+            },
+            {
+                "item_id": "P009557",
+                "amount": 1
+            }
+            ]
 
     def test_get_shipments(self):
         response = httpx.get(
@@ -65,7 +76,7 @@ class TestEndpointsShipments:
         assert response.status_code == 200
 
         response = httpx.get(BASE_URL, headers=self.headerlist[1])
-        assert response.status_code == 401  # Verkeerde API-sleutel
+        assert response.status_code == 200 
 
     def test_get_shipment(self):
         response = httpx.get(f"{BASE_URL}{self.valid_shipment_id}",
@@ -75,34 +86,44 @@ class TestEndpointsShipments:
 
         response = httpx.get(
             f"{BASE_URL}{self.valid_shipment_id}", headers=self.headerlist[1])
-        assert response.status_code == 401
+        assert response.status_code == 200
+
+    def test_items_in_shipment(self):
+        response = httpx.get(f"{BASE_URL}{self.valid_shipment_id}/items",
+                             headers=self.headerlist[0])
+        assert response.status_code == 200
+
+        response = httpx.get(
+            f"{BASE_URL}{self.valid_shipment_id}/items", headers=self.headerlist[1])
+        assert response.status_code == 200
 
     def test_post_shipment(self):
         response = httpx.post(
             BASE_URL, json=self.new_shipment, headers=self.headerlist[0])
-        assert response.status_code == 200
+        assert response.status_code == 201
 
         response = httpx.post(
             BASE_URL, json=self.new_shipment, headers=self.headerlist[1])
-        assert response.status_code == 401
+        assert response.status_code == 403
 
     def test_put_shipment(self):
         updated_shipment = self.new_shipment.copy()
         updated_shipment["status"] = "Shipped"
 
-        response = httpx.get(
-            f"{BASE_URL}{self.new_shipment['id']}", headers=self.headerlist[0])
+        response = httpx.put(
+            f"{BASE_URL}{4}", json=updated_shipment, headers=self.headerlist[0])
         assert response.status_code == 200
 
         response = httpx.put(
             f"{BASE_URL}{self.new_shipment['id']}", json=updated_shipment, headers=self.headerlist[1])
-        assert response.status_code == 401
+        assert response.status_code == 403
 
     def test_remove_shipment(self):
         response = httpx.delete(
-            f"{BASE_URL}{self.new_shipment['id']}", headers=self.headerlist[0])
+            f"{BASE_URL}{9}", headers=self.headerlist[0])
         assert response.status_code == 200
 
         response = httpx.delete(
-            f"{BASE_URL}{self.new_shipment['id']}", headers=self.headerlist[1])
-        assert response.status_code == 401
+            f"{BASE_URL}{2}", headers=self.headerlist[1])
+        assert response.status_code == 403
+    
