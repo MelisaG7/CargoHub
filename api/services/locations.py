@@ -1,7 +1,6 @@
 import json
 
 from services.base import Base
-
 from fastapi import APIRouter, HTTPException
 from models.Models import Location
 from fastapi.responses import JSONResponse
@@ -18,6 +17,7 @@ class Locations(Base):
             is_debug (bool): Bepaalt of de klasse met debugdata moet worden geladen.
         """
         self.data_path = root_path + "locations.json"
+        self.is_debug = is_debug
         self.load(is_debug)
         self.router = APIRouter()
 
@@ -25,8 +25,6 @@ class Locations(Base):
             "/locations/", self.get_locations, methods=["GET"])
         self.router.add_api_route(
             "/locations/{location_id}", self.get_location, methods=["GET"])
-        self.router.add_api_route(
-            "/locations/{warehouse_id}", self.get_locations_in_warehouse, methods=["GET"])
         self.router.add_api_route(
             "/locations/", self.add_location, methods=["POST"])
         self.router.add_api_route(
@@ -57,30 +55,19 @@ class Locations(Base):
         return None
 
     def get_locations_in_warehouse(self, warehouse_id: int):
-        """Het haalt alle locaties op binnen een specifiek magazijn.
-
-        Args:
-            warehouse_id (int): Het ID van het magazijn.
-
-        Returns:
-            list: Een lijst met locaties binnen het opgegeven magazijn.
-        """
+        # Het haalt alle locaties op binnen een specifiek magazijn.
+        # Args: warehouse_id (int): Het ID van het magazijn.
+        # Returns: list: Een lijst met locaties binnen het opgegeven magazijn.
+        # Deze methode wordt gebruikt door warehouses.py
 
         locations_in_warehouse = []
         # Doorloop alle locaties in de data
-        try:
-            for location in self.data:
-                if location["warehouse_id"] == warehouse_id:
-                    locations_in_warehouse.append(location)
-            return locations_in_warehouse
-        except Exception as e:
-            print(e)
-
-        # Controleer of er locaties zijn gevonden
+        for location in self.data:
+            if location["warehouse_id"] == warehouse_id:
+                locations_in_warehouse.append(location)
         if not locations_in_warehouse:
-            return JSONResponse(content="Warehouse not found.", status_code=404)
-
-        # Geef de gevonden locaties terug
+            raise HTTPException(status_code=400,
+                                detail=f"No locations found with {warehouse_id} warehouse ID.")
         return locations_in_warehouse
 
     def add_location(self, location: Location):
@@ -92,7 +79,13 @@ class Locations(Base):
         location_dictionary = location.model_dump()
         location_dictionary["created_at"] = self.get_timestamp()
         location_dictionary["updated_at"] = self.get_timestamp()
-        self.data.append(location)
+        self.data.append(location_dictionary)
+        if not self.is_debug:
+            self.save()
+            raise HTTPException(status_code=200,
+                                detail=f"Location has been added!")
+        raise HTTPException(status_code=400,
+                            detail=f"Location couldn't be added.")
 
     def update_location(self, location_id: int, location: Location):
         """Werk een bestaande locatie bij op basis van het locatie-ID.
@@ -106,7 +99,10 @@ class Locations(Base):
         for index in range(len(self.data)):
             if self.data[index]["id"] == location_id:
                 self.data[index] = location_dictionary
-                break
+        if not self.is_debug:
+            self.save()
+            raise HTTPException(status_code=200,
+                                detail=f"Location has been added!")
 
     def remove_location(self, location_id):
         """Verwijdert een locatie uit de data op basis van het locatie-ID.
