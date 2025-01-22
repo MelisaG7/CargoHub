@@ -17,6 +17,7 @@ class Warehouses(Base):
         :param is_debug: If True, loads sample data instead of data from the JSON file.
         """
         self.data_path = root_path + "warehouses.json"
+        self.is_debug = is_debug
         self.load(is_debug)
         self.router = APIRouter()
         self.router.add_api_route(
@@ -64,7 +65,8 @@ class Warehouses(Base):
         warehousedict["created_at"] = self.get_timestamp()
         warehousedict["updated_at"] = self.get_timestamp()
         self.data.append(warehousedict)
-        self.save()
+        if not self.is_debug:
+            self.save()
         try:
             return JSONResponse(content="Warehouse has been added", status_code=201)
         except Exception as e:
@@ -106,7 +108,6 @@ class Warehouses(Base):
     def load(self, is_debug):
         if is_debug:
             self.data = WAREHOUSES
-            return
         else:
             f = open(self.data_path, "r")
             self.data = json.load(f)
