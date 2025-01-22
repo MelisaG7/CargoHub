@@ -23,18 +23,18 @@ class Orders(Base):
         self.router.add_api_route(
             "/orders/{order_id}", self.get_order, methods=["GET"])
         self.router.add_api_route(
-            "/orders/{order_id}", self.get_items_in_order, methods=["GET"])
+            "/orders/{order_id}/items", self.get_items_in_order, methods=["GET"])
         self.router.add_api_route(
-            "/orders/{shipment_id}", self.get_orders_in_shipment, methods=["GET"])
+            "/shipments/{shipment_id}/orders", self.get_orders_in_shipment, methods=["GET"])
         self.router.add_api_route(
-            "/orders/{client_id}", self.get_orders_for_client, methods=["GET"])
+            "/clients/{client_id}/orders", self.get_orders_for_client, methods=["GET"])
         self.router.add_api_route("/orders/", self.add_order, methods=["POST"])
         self.router.add_api_route(
             "/orders/{order_id}", self.update_order, methods=["PUT"])
         self.router.add_api_route(
-            "/orders/{order_id}", self.update_items_in_order, methods=["PUT"])
+            "/orders/{order_id}/items", self.update_items_in_order, methods=["PUT"])
         self.router.add_api_route(
-            "/orders/{order_id}", self.update_orders_in_shipment, methods=["PUT"])
+            "/shipments/{order_id}/orders", self.update_orders_in_shipment, methods=["PUT"])
         self.router.add_api_route(
             "/orders/{order_id}", self.remove_order, methods=["DELETE"])
 
@@ -62,7 +62,7 @@ class Orders(Base):
         for order in self.data:
             if order["id"] == order_id:
                 return order
-        return None
+        return JSONResponse(content="Invalid order id", status_code=400)
 
     def get_items_in_order(self, order_id: int):
         """Haalt alle items op binnen een specifieke bestelling.
@@ -76,7 +76,7 @@ class Orders(Base):
         for order in self.data:
             if order["id"] == order_id:
                 return order["items"]
-        return None
+        return JSONResponse(content="Invalid order id.", status_code=400)
 
     def get_orders_in_shipment(self, shipment_id):
         """Haalt alle orders op die aan een specifieke zending zijn gekoppeld.
@@ -115,9 +115,14 @@ class Orders(Base):
             order (dict): De gegevens van de bestelling om toe te voegen.
         """
         order_dictionary = order.model_dump()
+        for order in self.data:
+            if order["id"] == order_dictionary["id"]:
+                return JSONResponse(content="invalid order", status_code=400)
         order_dictionary["created_at"] = self.get_timestamp()
         order_dictionary["updated_at"] = self.get_timestamp()
         self.data.append(order)
+        self.save()
+        return JSONResponse(content="order successfully added", status_code=201)
 
     def update_order(self, order_id: int, order: Order):
         """Werk een bestaande bestelling bij op basis van het order-ID.
@@ -126,12 +131,16 @@ class Orders(Base):
             order_id (int): Het ID van de bestelling om bij te werken.
             order (dict): De bijgewerkte bestelgegevens.
         """
+        if order_id != order.id:
+            return JSONResponse(content="Invalid order ids", status_code=400)
         order_dictionary = order.model_dump()
         order_dictionary["updated_at"] = self.get_timestamp()
         for index in range(len(self.data)):
             if self.data[index]["id"] == order_id:
                 self.data[index] = order_dictionary
-                break
+                self.save()
+                return JSONResponse(content="order updates", status_code=201)
+        return JSONResponse(content="order not found", status_code=404)
 
     def update_items_in_order(self, order_id, items):
         """Werk de items binnen een bestelling bij en beheer de inventaris.
@@ -185,7 +194,7 @@ class Orders(Base):
                     min_inventory["id"], min_inventory)
 
         order["items"] = items
-        self.update_order(order_id, order)
+        return self.update_order(order_id, order)
 
     def update_orders_in_shipment(self, shipment_id, orders):
         """Werk de zending bij door orders toe te voegen of te verwijderen van een zending.
@@ -207,6 +216,7 @@ class Orders(Base):
             order["shipment_id"] = shipment_id
             order["order_status"] = "Packed"
             self.update_order(packed_order_id, order)
+        return JSONResponse(content="Orders processed", status_code=200)
 
     def remove_order(self, order_id):
         """Verwijdert een bestelling uit de data op basis van het order-ID.
@@ -218,8 +228,11 @@ class Orders(Base):
             for order in self.data:
                 if order["id"] == order_id:
                     self.data.remove(order)
+                    self.save()
+                return JSONResponse(content="Order successfully removed.", status_code=200)
         except Exception as e:
             print(e)
+            return JSONResponse(content="Order couldnt be removed", status_code=400)
 
     def load(self, is_debug):
         """Laadt de bestellingsgegevens uit een JSON-bestand of uit een debuglijst.
