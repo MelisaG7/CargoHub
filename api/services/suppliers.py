@@ -73,7 +73,6 @@ class Suppliers(Base):
         supplier_dictionary["created_at"] = self.get_timestamp()
         supplier_dictionary["updated_at"] = self.get_timestamp()
         self.data.append(supplier_dictionary)
-        self.save()
         try:
             return JSONResponse(content="Supplier has been added", status_code=201)
         except Exception as e:
@@ -92,7 +91,6 @@ class Suppliers(Base):
             try:
                 if suppliers["id"] == supplier_id:
                     suppliers.update(supplier_dictionary)
-                    self.save()
                     return
             except Exception as e:
                 print(e)
@@ -106,7 +104,6 @@ class Suppliers(Base):
         for supplier in self.data:
             if supplier["id"] == supplier_id:
                 self.data.remove(supplier)
-                self.save()
 
     def load(self, is_debug):
         """Loads supplier data from JSON or debug data.

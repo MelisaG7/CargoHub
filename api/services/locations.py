@@ -26,7 +26,7 @@ class Locations(Base):
         self.router.add_api_route(
             "/locations/{location_id}", self.get_location, methods=["GET"])
         self.router.add_api_route(
-            "/warehouses/{warehouse_id}/locations", self.get_locations_in_warehouse, methods=["GET"])
+            "/locations/{warehouse_id}", self.get_locations_in_warehouse, methods=["GET"])
         self.router.add_api_route(
             "/locations/", self.add_location, methods=["POST"])
         self.router.add_api_route(
@@ -54,7 +54,7 @@ class Locations(Base):
         for location in self.data:
             if location["id"] == location_id:
                 return location
-        return JSONResponse(content="invalid location id", status_code=400)
+        return None
 
     def get_locations_in_warehouse(self, warehouse_id: int):
         """Het haalt alle locaties op binnen een specifiek magazijn.
@@ -93,8 +93,6 @@ class Locations(Base):
         location_dictionary["created_at"] = self.get_timestamp()
         location_dictionary["updated_at"] = self.get_timestamp()
         self.data.append(location)
-        self.save()
-        return JSONResponse(content="Location successfully added.", status_code=201)
 
     def update_location(self, location_id: int, location: Location):
         """Werk een bestaande locatie bij op basis van het locatie-ID.
@@ -108,8 +106,7 @@ class Locations(Base):
         for index in range(len(self.data)):
             if self.data[index]["id"] == location_id:
                 self.data[index] = location_dictionary
-                self.save()
-                return JSONResponse(content="Location successfully updated.", status_code=201)
+                break
 
     def remove_location(self, location_id):
         """Verwijdert een locatie uit de data op basis van het locatie-ID.
@@ -121,9 +118,6 @@ class Locations(Base):
             for location in self.data:
                 if location["id"] == location_id:
                     self.data.remove(location)
-                    self.save()
-                    return JSONResponse(content="Location successully removed", status_code=200)
-            return JSONResponse(content="Invalid location id", status_code=404)
         except Exception as e:
             print(e)
 
