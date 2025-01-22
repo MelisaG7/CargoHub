@@ -16,6 +16,7 @@ class Suppliers(Base):
             is_debug (bool): Indicates if debug data should be loaded.
         """
         self.data_path = root_path + "suppliers.json"
+        self.is_debug = is_debug
         self.load(is_debug)
         self.router = APIRouter()
         self.router.add_api_route(
@@ -73,6 +74,8 @@ class Suppliers(Base):
         supplier_dictionary["created_at"] = self.get_timestamp()
         supplier_dictionary["updated_at"] = self.get_timestamp()
         self.data.append(supplier_dictionary)
+        if not self.is_debug:
+            self.save()
         try:
             return JSONResponse(content="Supplier has been added", status_code=201)
         except Exception as e:
@@ -91,6 +94,7 @@ class Suppliers(Base):
             try:
                 if suppliers["id"] == supplier_id:
                     suppliers.update(supplier_dictionary)
+                    self.save()
                     return
             except Exception as e:
                 print(e)
@@ -104,13 +108,10 @@ class Suppliers(Base):
         for supplier in self.data:
             if supplier["id"] == supplier_id:
                 self.data.remove(supplier)
+        if not self.is_debug:
+            self.save()
 
     def load(self, is_debug):
-        """Loads supplier data from JSON or debug data.
-
-        Args:
-            is_debug (bool): If True, loads debug data instead of the JSON file.
-        """
         if is_debug:
             self.data = SUPPLIERS
         else:
@@ -119,7 +120,6 @@ class Suppliers(Base):
             f.close()
 
     def save(self):
-        """Saves the current data to the JSON file."""
         f = open(self.data_path, "w")
         json.dump(self.data, f)
         f.close()

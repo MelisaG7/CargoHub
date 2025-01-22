@@ -19,6 +19,7 @@ class Transfers(Base):
         """
 
         self.data_path = root_path + "transfers.json"
+        self.is_debug = is_debug
         self.load(is_debug)
         self.router = APIRouter()
         self.router.add_api_route(
@@ -121,6 +122,8 @@ class Transfers(Base):
         transfer_dictionary["created_at"] = self.get_timestamp()
         transfer_dictionary["updated_at"] = self.get_timestamp()
         self.data.append(transfer_dictionary)
+        if not self.is_debug:
+            self.save()
         try:
             return JSONResponse(content="Transfer has been added", status_code=201)
         except Exception as e:
@@ -138,7 +141,9 @@ class Transfers(Base):
         for transfers in self.data:
             if transfers["id"] == transfer_id:
                 transfers.update(transfer_dictionary)
-                return
+        if not self.is_debug:
+            self.save()
+        return
 
     def remove_transfer(self, transfer_id: int):
         """Removes a transfer from the data based on its ID.
@@ -149,13 +154,10 @@ class Transfers(Base):
         for transfer in self.data:
             if transfer["id"] == transfer_id:
                 self.data.remove(transfer)
+        if not self.is_debug:
+            self.save()
 
     def load(self, is_debug):
-        """Loads transfer data from a JSON file or debug data if specified.
-
-        Args:
-            is_debug (bool): If True, loads debug data instead of reading from the JSON file.
-        """
         if is_debug:
             self.data = TRANSFERS
         else:
@@ -164,7 +166,6 @@ class Transfers(Base):
             f.close()
 
     def save(self):
-        """Saves the current transfer data to the JSON file."""
         f = open(self.data_path, "w")
         json.dump(self.data, f)
         f.close()

@@ -1,10 +1,6 @@
 import json
 from services.base import Base
 from models.Models import Client
-# Maak jullie geen zorgen guys
-# Ik ben zo geweldig dat ik al alle objecten
-# Heb gemaakt voor jullie
-# Graaggedaan
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 
@@ -31,11 +27,16 @@ class Clients(Base):
 
         # Vgm hoef ik hier niet veel uit te leggen,
         # doe dit gwn voor elke endpoint die je hebt
-        self.router.add_api_route("/clients", self.get_clients, methods=["GET"])
-        self.router.add_api_route("/clients/{client_id}", self.get_client, methods=["GET"])
-        self.router.add_api_route("/clients", self.add_client, methods=["POST"])
-        self.router.add_api_route("/clients/{client_id}", self.update_client, methods=["PUT"])
-        self.router.add_api_route("/clients/{client_id}", self.remove_client, methods=["DELETE"])
+        self.router.add_api_route(
+            "/clients", self.get_clients, methods=["GET"])
+        self.router.add_api_route(
+            "/clients/{client_id}", self.get_client, methods=["GET"])
+        self.router.add_api_route(
+            "/clients", self.add_client, methods=["POST"])
+        self.router.add_api_route(
+            "/clients/{client_id}", self.update_client, methods=["PUT"])
+        self.router.add_api_route(
+            "/clients/{client_id}", self.remove_client, methods=["DELETE"])
 
         # Enn that was it. Je hoeft nu alleen fouthandling toe te voegen,
         # HTTPexceptions en MODEL_DUMP() GEBRUIKEN!!!!
@@ -145,7 +146,7 @@ class Clients(Base):
                 self.save()
                 return {"message": "client successfully removed from the database."}
         raise HTTPException(status_code=404,
-                    detail=f"Client with id {client_id} was not found")
+                            detail=f"Client with id {client_id} was not found")
 
     def load(self, is_debug):
         '''

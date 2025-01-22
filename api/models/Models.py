@@ -32,6 +32,7 @@ class Inventory(BaseModel):
     item_reference: str
     locations: list
     total_on_hand: int
+    total_expected: int
     total_ordered: int
     total_allocated: int
     total_available: int
@@ -141,8 +142,8 @@ class Order(BaseModel):
     shipping_notes: str
     picking_notes: str
     warehouse_id: int
-    ship_to: str
-    bill_to: str
+    ship_to: int
+    bill_to: int
     shipment_id: int
     total_amount: float
     total_discount: float
