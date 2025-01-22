@@ -104,24 +104,23 @@ class Warehouses(Base):
             print(e)
 
     def load(self, is_debug):
+        if is_debug:
+            self.data = WAREHOUSES
+            return
+        else:
+            f = open(self.data_path, "r")
+            self.data = json.load(f)
+            f.close()
         """
         Load data from the JSON file or use sample data if in debug mode.
 
         :param is_debug: If True, loads sample data instead of data from the JSON file.
         """
-        if is_debug:
-            self.data = WAREHOUSES
-            return
-        try:
-            with open(self.data_path, "r") as file:
-                self.data = json.load(file)
-        except (FileNotFoundError, json.JSONDecodeError):
-            print(f"{self.data_path} not found or could not be loaded.")
-            self.data = []
 
     def save(self):
+        f = open(self.data_path, "w")
+        json.dump(self.data, f)
+        f.close()
         """
         Write all current data to the JSON file.
         """
-        with open(self.data_path, "w") as file:
-            json.dump(self.data, file, indent=4)
