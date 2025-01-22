@@ -22,7 +22,7 @@ class TestEndpointsOrders:
         self.valid_order_id = 101  # order id
         self.invalid_order_ids = [-1, -20, 1.25, "one hundred"]
         self.new_order = {
-            "id": 4842,
+            "id": 4847,
             "source_id": 46,
             "order_date": "1989-12-01T05:52:40Z",
             "request_date": "1989-12-05T05:52:40Z",

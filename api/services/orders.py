@@ -1,8 +1,9 @@
 import json
 from services.base import Base
-from fastapi import APIRouter, HTTPException
-from models.Models import Order
+from fastapi import APIRouter, HTTPException, Body
+from models.Models import Order, ItemFields
 from fastapi.responses import JSONResponse
+from typing import List
 
 ORDERS = []
 
@@ -19,24 +20,52 @@ class Orders(Base):
         self.load(is_debug)
         self.router = APIRouter()
 
+        # Check
         self.router.add_api_route("/orders/", self.get_orders, methods=["GET"])
+        # Check
         self.router.add_api_route(
             "/orders/{order_id}", self.get_order, methods=["GET"])
+        # Check (moet nog nacontrole doen)
         self.router.add_api_route(
+<<<<<<< Updated upstream
             "/orders/{order_id}", self.get_items_in_order, methods=["GET"])
         self.router.add_api_route(
             "/orders/{shipment_id}", self.get_orders_in_shipment, methods=["GET"])
         self.router.add_api_route(
             "/orders/{client_id}", self.get_orders_for_client, methods=["GET"])
+=======
+            "/orders/{order_id}/items", self.get_items_in_order, methods=["GET"])
+        # Moet nog nacontrole doen
+        self.router.add_api_route(
+            "/shipments/{shipment_id}/orders", self.get_orders_in_shipment, methods=["GET"])
+        # Moet nog nacontrole doen
+        self.router.add_api_route(
+            "/clients/{client_id}/orders", self.get_orders_for_client, methods=["GET"])
+        # Moet nog nacontrole doen
+>>>>>>> Stashed changes
         self.router.add_api_route("/orders/", self.add_order, methods=["POST"])
         self.router.add_api_route(
             "/orders/{order_id}", self.update_order, methods=["PUT"])
+        # Moet nog nacontrole doen
         self.router.add_api_route(
+<<<<<<< Updated upstream
             "/orders/{order_id}", self.update_items_in_order, methods=["PUT"])
         self.router.add_api_route(
             "/orders/{order_id}", self.update_orders_in_shipment, methods=["PUT"])
+=======
+            "/orders/{order_id}/items", self.update_items_in_order, methods=["PUT"])
+        # Moet nog nacontrole doen
+        self.router.add_api_route(
+            "/shipments/{shipment_id}/orders", self.update_orders_in_shipment, methods=["PUT"])
+        # Check
+>>>>>>> Stashed changes
         self.router.add_api_route(
             "/orders/{order_id}", self.remove_order, methods=["DELETE"])
+
+    @staticmethod
+    def Fouthandling():
+        from Fouthandling.orders_fouthandling import OrderFouthandling
+        return OrderFouthandling()
 
     def DataProvider():
         from providers import data_provider
@@ -51,6 +80,8 @@ class Orders(Base):
         return self.data
 
     def get_order(self, order_id: int):
+        if not self.Fouthandling().check_get_order(order_id):
+            raise HTTPException(status_code=400, detail="invalid order id")
         """Zoekt en retourneert een specifieke bestelling op basis van het order-ID.
 
         Args:
@@ -62,9 +93,15 @@ class Orders(Base):
         for order in self.data:
             if order["id"] == order_id:
                 return order
+<<<<<<< Updated upstream
         return None
+=======
+        raise HTTPException(status_code=400, detail="invalid order id")
+>>>>>>> Stashed changes
 
     def get_items_in_order(self, order_id: int):
+        if not self.Fouthandling().check_get_order(order_id):
+            raise HTTPException(status_code=400, detail="invalid order id")
         """Haalt alle items op binnen een specifieke bestelling.
 
         Args:
@@ -76,9 +113,15 @@ class Orders(Base):
         for order in self.data:
             if order["id"] == order_id:
                 return order["items"]
+<<<<<<< Updated upstream
         return None
+=======
+        raise HTTPException(status_code=400, detail="Invalid order id.")
+>>>>>>> Stashed changes
 
     def get_orders_in_shipment(self, shipment_id):
+        if not self.Fouthandling().check_get_orders_in_shipment(shipment_id):
+            raise HTTPException(status_code=400, detail="Invalid shipmemnt id.")
         """Haalt alle orders op die aan een specifieke zending zijn gekoppeld.
 
         Args:
@@ -89,11 +132,13 @@ class Orders(Base):
         """
         result = []
         for order in self.data:
-            if order["shipment_id"] == shipment_id:
+            if str(order["shipment_id"]) == shipment_id:
                 result.append(order["id"])
         return result
 
     def get_orders_for_client(self, client_id):
+        if not self.Fouthandling().check_get_orders_for_client(client_id):
+            raise HTTPException(status_code=400, detail="Invalid client id")
         """Haalt alle bestellingen op voor een specifieke klant.
 
         Args:
@@ -104,22 +149,35 @@ class Orders(Base):
         """
         result = []
         for order in self.data:
-            if order["ship_to"] == client_id or order["bill_to"] == client_id:
+            if str(order["ship_to"]) == client_id or str(order["bill_to"]) == client_id:
                 result.append(order)
         return result
 
     def add_order(self, order: Order):
+        if not self.Fouthandling().check_add_order(order):
+            raise HTTPException(status_code=400, detail="Invalid order body")
         """Voegt een nieuwe bestelling toe aan de data met tijdstempels voor aanmaak en update.
 
         Args:
             order (dict): De gegevens van de bestelling om toe te voegen.
         """
         order_dictionary = order.model_dump()
+<<<<<<< Updated upstream
         order_dictionary["created_at"] = self.get_timestamp()
         order_dictionary["updated_at"] = self.get_timestamp()
         self.data.append(order)
+=======
+        print(type(order_dictionary)) 
+        order_dictionary["created_at"] = self.get_timestamp()
+        order_dictionary["updated_at"] = self.get_timestamp()
+        self.data.append(order_dictionary)
+        self.save()
+        return JSONResponse(content="order successfully added", status_code=201)
+>>>>>>> Stashed changes
 
     def update_order(self, order_id: int, order: Order):
+        if not self.Fouthandling().check_update_order(order_id, order):
+            raise HTTPException(status_code=400, detail="Incorrect order id or order body.")
         """Werk een bestaande bestelling bij op basis van het order-ID.
 
         Args:
@@ -131,9 +189,17 @@ class Orders(Base):
         for index in range(len(self.data)):
             if self.data[index]["id"] == order_id:
                 self.data[index] = order_dictionary
+<<<<<<< Updated upstream
                 break
+=======
+                self.save()
+                return JSONResponse(content="order is successfully updated", status_code=201)
+        raise HTTPException(status_code=404, detail="order not found")
+>>>>>>> Stashed changes
 
-    def update_items_in_order(self, order_id, items):
+    def update_items_in_order(self, order_id, items: List[ItemFields] = Body(...)):
+        if not self.Fouthandling().check_update_items_in_order(order_id, items):
+            raise HTTPException(status_code=400, detail="Invalid order id or item list")
         """Werk de items binnen een bestelling bij en beheer de inventaris.
 
         Args:
@@ -188,38 +254,55 @@ class Orders(Base):
         self.update_order(order_id, order)
 
     def update_orders_in_shipment(self, shipment_id, orders):
+        if not self.Fouthandling().check_update_orders_in_shipment(shipment_id, orders):
+            raise HTTPException(status_code=400, detail="invalid shipment id or order list")
         """Werk de zending bij door orders toe te voegen of te verwijderen van een zending.
 
         Args:
             shipment_id (int): Het ID van de zending.
             orders (list): Een lijst met order-ID's die bij de zending horen.
         """
-        packed_orders = self.get_orders_in_shipment(shipment_id)
-        for packed_order_id in packed_orders:
-            if packed_order_id not in orders:
-                order = self.get_order(packed_order_id)
-                order["shipment_id"] = -1
-                order["order_status"] = "Scheduled"
-                self.update_order(packed_order_id, order)
+        # Get all current packed orders
+        current_orders = set(self.get_orders_in_shipment(shipment_id))
+        new_orders = set(json.loads(orders))
 
-        for packed_order_id in orders:
+        # Orders to remove
+        for packed_order_id in current_orders - new_orders:
+            order = self.get_order(packed_order_id)
+            order["shipment_id"] = -1
+            order["order_status"] = "Scheduled"
+            self.update_order(packed_order_id, order)
+
+        # Orders to add/update
+        for packed_order_id in new_orders:
             order = self.get_order(packed_order_id)
             order["shipment_id"] = shipment_id
             order["order_status"] = "Packed"
             self.update_order(packed_order_id, order)
 
     def remove_order(self, order_id):
+        if not self.Fouthandling().check_remove_order(order_id):
+            raise HTTPException(status_code=400, detail="Invalid order id.")
         """Verwijdert een bestelling uit de data op basis van het order-ID.
 
         Args:
             order_id (int): Het ID van de bestelling om te verwijderen.
         """
+<<<<<<< Updated upstream
         try:
             for order in self.data:
                 if order["id"] == order_id:
                     self.data.remove(order)
         except Exception as e:
             print(e)
+=======
+        for order in self.data:
+            if order["id"] == order_id:
+                self.data.remove(order)
+                self.save()
+                return JSONResponse(content="Order successfully removed.", status_code=200)
+        raise HTTPException(status_code=400, detail="Order not found")
+>>>>>>> Stashed changes
 
     def load(self, is_debug):
         """Laadt de bestellingsgegevens uit een JSON-bestand of uit een debuglijst.
@@ -235,6 +318,6 @@ class Orders(Base):
             f.close()
 
     def save(self):
-        """Saves the current data to the JSON file."""
+        # """Saves the current data to the JSON file."""
         f = open(self.data_path, "w")
         json.dump(self.data, f)
