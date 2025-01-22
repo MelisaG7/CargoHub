@@ -81,7 +81,7 @@ class ItemLines(Base):
                     '''
                     return itemline
 
-            raise HTTPException(status_code=404,
+            raise HTTPException(status_code=204,
                                 detail=f"Itemline with id {item_line_id} was not found")
         except Exception as e:
             print(e)
